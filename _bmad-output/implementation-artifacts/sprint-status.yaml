@@ -1,0 +1,55 @@
+# generated: 2026-07-14T00:00:00Z
+# last_updated: 2026-07-14T00:00:00Z
+# project: BMAD
+# project_key: SCRUM
+# tracking_system: jira
+# story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+generated: 2026-07-14T00:00:00Z
+last_updated: 2026-07-14T00:00:00Z
+project: BMAD
+project_key: SCRUM
+tracking_system: jira
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: backlog
+  1-1-enter-a-prompt-and-submit-a-generation-request: in-progress
+  1-2-render-exactly-three-starter-idea-cards: backlog
+  1-3-show-clear-feedback-when-generation-fails: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-toggle-favorite-state-for-an-idea: backlog
+  2-2-persist-favorite-selections-in-browser-storage: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-keep-the-core-flow-on-a-single-screen: backlog
+  3-2-support-responsive-layouts-for-mobile-and-desktop: backlog
+  epic-3-retrospective: optional
+
+action_items: []

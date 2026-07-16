@@ -1,0 +1,4 @@
+[workflow]
+
+# Override the PRD template to use your custom format
+prd_template = "{project-root}/_bmad/custom/bmad-prd-custom-template.md"
