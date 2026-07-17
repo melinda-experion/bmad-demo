@@ -1,37 +1,54 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
+const path = require("path");
 
-const configPath = "_bmad/custom/project.json";
-if (!fs.existsSync(configPath)) {
-  console.error(
-    "[bmad-hook] _bmad/custom/project.json not found — cannot resolve project name. Skipping status-revert check.",
-  );
-  process.exit(0); // don't block the commit over this
-}
-const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-const projectName = config.project_name;
-if (!projectName) {
-  console.error(
-    "[bmad-hook] project_name missing from project.json — skipping status-revert check.",
-  );
-  process.exit(0);
-}
-
-const logPath = `_bmad-output/${projectName}-project-log.csv`;
-
-function logAction(action) {
-  const now = new Date();
-  const date = now.toISOString().slice(0, 10);
-  const time = now.toTimeString().slice(0, 8);
-  const gitUser = execSync("git config user.name").toString().trim();
-
-  if (!fs.existsSync(logPath)) {
-    fs.writeFileSync(logPath, "date,time,bmad_user,action\n");
+// --- Resolve BMAD user_name (not git identity) ---
+function resolveBmadUser() {
+  const candidates = ["_bmad/config.user.yaml", "_bmad/config.yaml"];
+  for (const file of candidates) {
+    if (!fs.existsSync(file)) continue;
+    const text = fs.readFileSync(file, "utf8");
+    const match = text.match(/^user_name:\s*(.+)$/m);
+    if (match && match[1].trim()) {
+      return match[1].trim();
+    }
   }
-  const escaped = action.includes(",") ? `"${action}"` : action;
-  fs.appendFileSync(logPath, `${date},${time},${gitUser},${escaped}\n`);
+  return "unknown-bmad-user";
 }
 
+// --- Resolve project_name (same source the skill uses) ---
+function resolveProjectName() {
+  const configPath = "_bmad/custom/project.json";
+  if (!fs.existsSync(configPath)) return null;
+  const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  return config.project_name || null;
+}
+
+// --- Log via the canonical Python script, not duplicated JS logic ---
+function logAction(action) {
+  const projectName = resolveProjectName();
+  const bmadUser = resolveBmadUser();
+  if (!projectName) {
+    console.error(
+      "[bmad-hook] project_name not resolved — skipping log entry.",
+    );
+    return;
+  }
+
+  const scriptPath = "skills/agent-project-logger/scripts/log_action.py"; // adjust if the actual path differs
+  const outputDir = "_bmad-output";
+
+  try {
+    execSync(
+      `python "${scriptPath}" --project-name "${projectName}" --action "${action}" --user "${bmadUser}" --output-dir "${outputDir}"`,
+      { stdio: "inherit" },
+    );
+  } catch (err) {
+    console.error("[bmad-hook] Failed to write log entry:", err.message);
+  }
+}
+
+const projectName = resolveProjectName();
 const staged = execSync("git diff --cached --name-only").toString().split("\n");
 const briefFiles = staged.filter((f) => /brief-.*\/brief\.md$/.test(f));
 
