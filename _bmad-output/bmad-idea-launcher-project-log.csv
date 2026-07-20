@@ -14,3 +14,4 @@ date,time,user,action
 2026-07-17,17:17:55,Mel,PRD generation blocked - brief status is draft
 2026-07-17,17:21:29,Mel,Brief approved by Mel
 2026-07-17,17:23:36,Mel,PRD generation started - brief approved
+2026-07-17,17:33:23,Mel,Brief updated outside approval flow - status reverted to draft (_bmad-output/planning-artifacts/briefs/brief-BMAD-2026-07-17/brief.md)
