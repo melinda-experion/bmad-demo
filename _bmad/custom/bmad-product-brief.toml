@@ -13,9 +13,5 @@ on_complete = [
 
   "skill:agent-project-logger with action 'Brief review report generated'",
 
-  "Tell the user the brief and review report are ready, and ask directly: have you read the review report and do you approve the brief? Wait for an explicit affirmative response. If they decline or don't confirm, tell them the brief remains in draft status, log this via skill:agent-project-logger with action 'Brief approval declined or deferred', and stop here.",
-
-  "If they approved, ask a second, separate confirmation: 'Please confirm you have read through the entire brief document itself, not just the review report, before I mark it approved.' Wait for an explicit second affirmative. If they decline this second confirmation, leave status as draft, log 'Brief approval declined at second confirmation' via skill:agent-project-logger, and stop here.",
-
-  "Only after both confirmations are explicitly given: edit brief.md's frontmatter status field to 'approved' and save the file. Then, as a separate step after that save completes, run a terminal command to read brief.md's actual current last-modified timestamp from the filesystem (not the current time — the file's own recorded mtime after your edit was saved). Write that exact value into a new or updated file at {project-root}/_bmad/custom/approval-state.json as {\"brief_path\": \"<resolved path to brief.md>\", \"approved_mtime\": \"<that mtime>\"}. Then log via skill:agent-project-logger with action 'Brief approved by {user_name}'.",,
+  "skill:agent-approval-grant with doc_type='brief', doc_path=<resolved path to brief.md>, doc_label='brief', review_artifact_label='review report'",
 ]

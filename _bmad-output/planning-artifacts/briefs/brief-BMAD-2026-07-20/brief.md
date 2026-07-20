@@ -13,6 +13,8 @@ Idea Spark is a simple web app for generating software-product ideas. A user typ
 
 This project exists primarily to learn the BMAD method end to end — brief through to a working build — using a small, low-stakes app as the vehicle. `[ASSUMPTION]` The learning goal takes priority over the product's real-world usefulness, so scope should stay deliberately minimal rather than growing toward a "real" product. This isn't meant to out-compete existing idea-generator tools or GPT itself — the "unfair advantage" here is scope discipline, not a product moat.
 
+Adding this sentence for testing the gate check.
+
 ## The Problem
 
 People trying to come up with a software product to build (for a side project, a hackathon, or just to practice) often stare at a blank page. A prompt like "something for gardeners" is a starting point, but turning it into a few concrete, buildable product ideas takes effort most people don't want to spend just to get unstuck.
