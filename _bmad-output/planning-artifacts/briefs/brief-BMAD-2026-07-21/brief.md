@@ -1,7 +1,7 @@
 ---
 title: Idea Spark App
-created: 2026-07-20
-updated: 2026-07-20
+created: 2026-07-21
+updated: 2026-07-21
 status: draft
 ---
 
@@ -11,9 +11,7 @@ status: draft
 
 Idea Spark is a simple web app for generating software-product ideas. A user types a prompt describing an interest, problem space, or theme, and the app returns three distinct software-product ideas. There's no account system, no idea library, no complexity beyond the core loop: type a prompt, get three ideas back.
 
-This project exists primarily to learn the BMAD method end to end — brief through to a working build — using a small, low-stakes app as the vehicle. `[ASSUMPTION]` The learning goal takes priority over the product's real-world usefulness, so scope should stay deliberately minimal rather than growing toward a "real" product. This isn't meant to out-compete existing idea-generator tools or GPT itself — the "unfair advantage" here is scope discipline, not a product moat.
-
-Adding this sentence for testing the gate check.
+This project exists primarily to learn the BMAD method end to end — brief through to a working build — using a small, low-stakes app as the vehicle. `[ASSUMPTION]` The learning goal takes priority over the product's real-world usefulness, so scope should stay deliberately minimal rather than growing toward a "real" product.
 
 ## The Problem
 
@@ -55,4 +53,6 @@ Primary user: Mel, building this as a learning exercise. `[ASSUMPTION]` No other
 
 `[ASSUMPTION]` These are inferred from "keep it as simple as possible" — flag anything you'd actually like in v1 and I'll move it in.
 
-`[ASSUMPTION]` No long-term product vision is defined — this is a scoped learning exercise, not a product with a roadmap. If it proves genuinely useful afterward, saved ideas, refinement, or sharing would be natural next steps, but they're out of scope here.
+## Vision
+
+`[ASSUMPTION]` No roadmap beyond this exercise. If it proves genuinely useful afterward, saved ideas, refinement, or sharing would be natural next steps — out of scope here.
