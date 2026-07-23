@@ -5,20 +5,25 @@
 """Mark a document's frontmatter status as approved and record the approval.
 
 Edits the `status:` line inside the document's leading `---` frontmatter
-block to the approved value, saves the file, then reads the file's own
+block to the approved value, bumps the frontmatter `version:` field (default
+0 if absent, incremented by 1), saves the file, then reads the file's own
 post-save mtime and records {doc_path, approved_mtime} under `doc_type` in
 a shared JSON state file. Other doc_type entries in that file are preserved
-untouched (read-modify-write merge, never a full overwrite).
+untouched (read-modify-write merge, never a full overwrite). Finally stages
+and commits the document via git; a failed commit is reported in the JSON
+output rather than raised, since the approval itself has already succeeded.
 """
 
 import argparse
 import json
 import re
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
+VERSION_FIELD_RE = re.compile(r"^version\s*:\s*(.*)$", re.MULTILINE)
 
 
 def set_status(text: str, status_field: str, approved_value: str) -> str:
@@ -33,6 +38,56 @@ def set_status(text: str, status_field: str, approved_value: str) -> str:
 
     new_frontmatter = field_re.sub(rf"\g<1>{approved_value}", frontmatter, count=1)
     return text[: match.start(1)] + new_frontmatter + text[match.end(1) :]
+
+
+def bump_version(text: str) -> tuple[str, int]:
+    match = FRONTMATTER_RE.match(text)
+    if not match:
+        raise ValueError("no YAML frontmatter block found at the top of the file")
+
+    frontmatter = match.group(1)
+    existing = VERSION_FIELD_RE.search(frontmatter)
+    try:
+        current_version = int(str(existing.group(1)).strip()) if existing else 0
+    except ValueError:
+        current_version = 0
+    new_version = current_version + 1
+
+    if existing:
+        new_frontmatter = VERSION_FIELD_RE.sub(f"version: {new_version}", frontmatter, count=1)
+    else:
+        new_frontmatter = frontmatter.rstrip("\n") + f"\nversion: {new_version}"
+
+    new_text = text[: match.start(1)] + new_frontmatter + text[match.end(1) :]
+    return new_text, new_version
+
+
+def commit_document(doc_path: Path, doc_type: str, version: int) -> dict:
+    commit_message = f"Approve {doc_type} v{version}"
+    resolved_doc_path = doc_path.resolve()
+    try:
+        add_result = subprocess.run(
+            ["git", "add", resolved_doc_path.name],
+            cwd=resolved_doc_path.parent,
+            capture_output=True,
+            text=True,
+        )
+        if add_result.returncode != 0:
+            return {"ok": False, "message": commit_message, "error": add_result.stderr.strip()}
+
+        commit_result = subprocess.run(
+            ["git", "commit", "-m", commit_message],
+            cwd=resolved_doc_path.parent,
+            capture_output=True,
+            text=True,
+        )
+        if commit_result.returncode != 0:
+            error = commit_result.stderr.strip() or commit_result.stdout.strip()
+            return {"ok": False, "message": commit_message, "error": error}
+    except OSError as exc:
+        return {"ok": False, "message": commit_message, "error": str(exc)}
+
+    return {"ok": True, "message": commit_message}
 
 
 def main() -> int:
@@ -52,6 +107,7 @@ def main() -> int:
     text = doc_path.read_text(encoding="utf-8")
     try:
         new_text = set_status(text, args.status_field, args.approved_value)
+        new_text, new_version = bump_version(new_text)
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
@@ -75,11 +131,15 @@ def main() -> int:
     state[args.doc_type] = {"doc_path": resolved_doc_path, "approved_mtime": approved_mtime}
     state_file.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
 
+    git_commit = commit_document(doc_path, args.doc_type, new_version)
+
     result = {
         "doc_path": resolved_doc_path,
         "doc_type": args.doc_type,
         "approved_mtime": approved_mtime,
         "state_file": str(state_file.resolve()),
+        "version": new_version,
+        "git_commit": git_commit,
     }
     print(json.dumps(result))
     return 0

@@ -61,7 +61,7 @@ for (const file of briefFiles) {
     .some(
       (line) =>
         (line.startsWith("+") || line.startsWith("-")) &&
-        !line.match(/^[+-]status:/) &&
+        !line.match(/^[+-]approval_status:/) &&
         !line.startsWith("+++") &&
         !line.startsWith("---"),
     );
@@ -69,8 +69,8 @@ for (const file of briefFiles) {
   if (!nonStatusChange) continue;
 
   let content = fs.readFileSync(file, "utf8");
-  if (/status:\s*approved/.test(content)) {
-    content = content.replace(/status:\s*approved/, "status: draft");
+  if (/approval_status:\s*approved/.test(content)) {
+    content = content.replace(/approval_status:\s*approved/, "approval_status: draft");
     fs.writeFileSync(file, content);
     execSync(`git add "${file}"`);
     logAction(
