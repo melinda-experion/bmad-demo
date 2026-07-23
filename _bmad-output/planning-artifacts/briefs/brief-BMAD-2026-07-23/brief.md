@@ -2,15 +2,15 @@
 title: BMAD Idea Launcher
 created: 2026-07-23
 updated: 2026-07-23
-approval_status: approved
-version: 1
+approval_status: draft
+version: 2
 ---
 
 # Product Brief: BMAD Idea Launcher
 
 ## Executive Summary
 
-BMAD Idea Launcher is a tiny learning project that turns a simple problem prompt into three starter ideas. It is designed to be built in 1-2 hours as a single-screen experiment with a lean front-end flow. The goal is to learn the BMAD framework by building and using a lightweight tool that embodies ideation, UX clarity, and rapid implementation.
+BMAD Idea Launcher is a tiny learning project that turns a simple problem prompt into three starter ideas. It is designed to be built in 1-2 hours as a single-screen experiment with a lean front-end flow. The goal is to learn the BMAD framework by building and using a lightweight tool that embodies ideation, UX clarity, and rapid implementations.
 
 ## The Problem
 
