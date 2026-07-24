@@ -9,7 +9,7 @@ A flexible starting structure for the executive product brief. Adapt aggressivel
 title: { Product Name }
 created: { YYYY-MM-DD }
 updated: { YYYY-MM-DD }
-status: draft
+approval_status: draft
 ---
 
 # Product Brief: {Product Name}

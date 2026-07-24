@@ -48,36 +48,47 @@ function logAction(action) {
   }
 }
 
+// doc_type -> {pattern matching its staged path, human label for log messages}
+const DOC_TYPES = [
+  { pattern: /brief-.*\/brief\.md$/, label: "Brief" },
+  { pattern: /prd-.*\/prd\.md$/, label: "PRD" },
+  { pattern: /architecture-.*\/ARCHITECTURE-SPINE\.md$/, label: "Architecture" },
+];
+
 const projectName = resolveProjectName();
 const staged = execSync("git diff --cached --name-only").toString().split("\n");
-const briefFiles = staged.filter((f) => /brief-.*\/brief\.md$/.test(f));
 
-for (const file of briefFiles) {
-  if (!fs.existsSync(file)) continue;
+for (const { pattern, label } of DOC_TYPES) {
+  const matchedFiles = staged.filter((f) => pattern.test(f));
 
-  const diff = execSync(`git diff --cached -- "${file}"`).toString();
-  const nonStatusChange = diff
-    .split("\n")
-    .some(
-      (line) =>
-        (line.startsWith("+") || line.startsWith("-")) &&
-        !line.match(/^[+-]approval_status:/) &&
-        !line.startsWith("+++") &&
-        !line.startsWith("---"),
-    );
+  for (const file of matchedFiles) {
+    if (!fs.existsSync(file)) continue;
 
-  if (!nonStatusChange) continue;
+    const diff = execSync(`git diff --cached -- "${file}"`).toString();
+    const nonStatusChange = diff
+      .split("\n")
+      .some(
+        (line) =>
+          (line.startsWith("+") || line.startsWith("-")) &&
+          !line.match(/^[+-]approval_status:/) &&
+          !line.match(/^[+-]version:/) &&
+          !line.startsWith("+++") &&
+          !line.startsWith("---"),
+      );
 
-  let content = fs.readFileSync(file, "utf8");
-  if (/approval_status:\s*approved/.test(content)) {
-    content = content.replace(/approval_status:\s*approved/, "approval_status: draft");
-    fs.writeFileSync(file, content);
-    execSync(`git add "${file}"`);
-    logAction(
-      `Brief updated outside approval flow - status reverted to draft (${file})`,
-    );
-    console.log(
-      `[bmad-hook] ${file}: reverted status to draft (content changed after approval).`,
-    );
+    if (!nonStatusChange) continue;
+
+    let content = fs.readFileSync(file, "utf8");
+    if (/approval_status:\s*approved/.test(content)) {
+      content = content.replace(/approval_status:\s*approved/, "approval_status: draft");
+      fs.writeFileSync(file, content);
+      execSync(`git add "${file}"`);
+      logAction(
+        `${label} updated outside approval flow - status reverted to draft (${file})`,
+      );
+      console.log(
+        `[bmad-hook] ${file}: reverted status to draft (content changed after approval).`,
+      );
+    }
   }
 }

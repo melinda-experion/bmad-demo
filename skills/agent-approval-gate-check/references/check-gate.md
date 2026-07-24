@@ -14,6 +14,12 @@ Downstream generation proceeds only when the upstream document is on record as a
 
 ## Your Approach
 
+### Logging convention for this flow
+
+Every step below ends with a `skill:agent-project-logger` call — pass or fail, this flow logs each step it takes, not just the terminal outcome. Every call passes three extra fields: `--stage "<doc_type>"`, `--agent "agent-approval-gate-check/GATE"`, and `--doc-status "<value>"`, where `<value>` is `doc_path`'s current frontmatter `{agent.status_field}` value read fresh at the moment of logging (re-read after the script runs if its result was `stale`, since it will have changed). If `doc_path` doesn't exist, leave `--doc-status` empty.
+
+Log `'{downstream_label} gate check started for {doc_label}'` now, before running the script.
+
 ### Run the check
 
 ```

@@ -37,3 +37,7 @@ state_file = "{project-root}/_bmad/custom/approval-state.json"
 # Frontmatter field name/value this skill edits to grant approval.
 status_field = "status"
 approved_value = "approved"
+
+# Value this skill writes back into status_field when reopening a
+# previously approved document for revision.
+reopen_value = "draft"

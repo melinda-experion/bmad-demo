@@ -1,0 +1,30 @@
+[agent]
+
+status_field = "approval_status"
+
+# Maps doc_type -> the skill to invoke to (re)generate that doc_type's
+# companion review artifact when it's missing or stale for the version
+# about to be approved. Looked up when a caller doesn't pass review_skill
+# explicitly. For prd/architecture this is the same skill that drafts the
+# document -- its own Validate intent is what actually regenerates the
+# review (see grant-approval.md's invocation note).
+[agent.review_skill_defaults]
+brief = "experion-brief-review"
+prd = "bmad-prd"
+architecture = "bmad-architecture"
+
+# Maps doc_type -> the human-readable label for that doc_type's companion
+# review artifact, used in the approval confirmation questions. Looked up
+# when a caller doesn't pass review_artifact_label explicitly.
+[agent.review_artifact_label_defaults]
+brief = "review report"
+prd = "validation report"
+# architecture falls back to the generic "review report" default
+
+# Maps doc_type -> the filename of that doc_type's companion review
+# artifact (resolved in the same directory as doc_path). Looked up when a
+# caller doesn't pass review_artifact_filename explicitly; falls back to
+# "review-report.md" when no entry matches.
+[agent.review_artifact_filename_defaults]
+prd = "review-rubric.md"
+# brief and architecture use the "review-report.md" default

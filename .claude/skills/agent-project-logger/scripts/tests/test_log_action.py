@@ -34,13 +34,16 @@ class AppendRowTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             log_path = Path(tmp) / "acme-project-log.csv"
             now = datetime(2026, 7, 17, 14, 32, 5)
-            log_action.append_row(log_path, "Mel", "Deployed v2 to staging", now)
+            log_action.append_row(log_path, "Mel", "Deployed v2 to staging", "prd", "agent-project-logger/LOG", "draft", now)
 
             with log_path.open(newline="", encoding="utf-8") as f:
                 rows = list(csv.reader(f))
 
             self.assertEqual(rows[0], log_action.HEADER)
-            self.assertEqual(rows[1], ["2026-07-17", "14:32:05", "Mel", "Deployed v2 to staging"])
+            self.assertEqual(
+                rows[1],
+                ["2026-07-17", "14:32:05", "Mel", "Deployed v2 to staging", "prd", "agent-project-logger/LOG", "draft"],
+            )
 
     def test_appends_without_rewriting_existing_rows(self):
         with TemporaryDirectory() as tmp:
@@ -48,23 +51,26 @@ class AppendRowTests(unittest.TestCase):
             first = datetime(2026, 7, 17, 9, 0, 0)
             second = datetime(2026, 7, 17, 10, 0, 0)
 
-            log_action.append_row(log_path, "Mel", "First action", first)
-            log_action.append_row(log_path, "Sam", "Second action", second)
+            log_action.append_row(log_path, "Mel", "First action", "brief", "experion-brief-review/RB", "draft", first)
+            log_action.append_row(log_path, "Sam", "Second action", "prd", "", "", second)
 
             with log_path.open(newline="", encoding="utf-8") as f:
                 rows = list(csv.reader(f))
 
             self.assertEqual(len(rows), 3)
-            self.assertEqual(rows[1], ["2026-07-17", "09:00:00", "Mel", "First action"])
-            self.assertEqual(rows[2], ["2026-07-17", "10:00:00", "Sam", "Second action"])
+            self.assertEqual(
+                rows[1],
+                ["2026-07-17", "09:00:00", "Mel", "First action", "brief", "experion-brief-review/RB", "draft"],
+            )
+            self.assertEqual(rows[2], ["2026-07-17", "10:00:00", "Sam", "Second action", "prd", "", ""])
 
     def test_no_header_written_when_file_already_exists(self):
         with TemporaryDirectory() as tmp:
             log_path = Path(tmp) / "acme-project-log.csv"
             now = datetime(2026, 7, 17, 9, 0, 0)
 
-            log_action.append_row(log_path, "Mel", "First action", now)
-            log_action.append_row(log_path, "Mel", "Second action", now)
+            log_action.append_row(log_path, "Mel", "First action", "", "", "", now)
+            log_action.append_row(log_path, "Mel", "Second action", "", "", "", now)
 
             with log_path.open(newline="", encoding="utf-8") as f:
                 rows = list(csv.reader(f))

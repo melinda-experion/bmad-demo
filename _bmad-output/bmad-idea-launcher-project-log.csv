@@ -1,4 +1,4 @@
-date,time,user,action
+date,time,user,action,stage,agent,doc_status
 
 2026-07-17,15:03:51,Mel,Brief generated
 2026-07-17,15:05:05,Mel,Brief review report generated
@@ -30,3 +30,38 @@ date,time,user,action
 2026-07-21,11:42:59,Mel,Brief approved by Mel
 2026-07-21,11:58:05,Mel,brief approved by Mel
 2026-07-21,11:59:20,Mel,brief modified after approval - status auto-reverted to draft
+2026-07-23,17:10:55,Mel,Brief generation started
+2026-07-23,17:14:19,Mel,Brief generated
+2026-07-23,17:16:12,Mel,Brief review report generated
+2026-07-23,17:20:20,Mel,Brief approved by Mel
+2026-07-23,17:27:16,Mel,Brief updated outside approval flow - status reverted to draft (_bmad-output/planning-artifacts/briefs/brief-BMAD-2026-07-23/brief.md)
+2026-07-23,20:00:31,Mel,brief reopened for review by Mel
+2026-07-23,20:13:19,Mel,Brief updated outside approval flow - status reverted to draft (_bmad-output/planning-artifacts/briefs/brief-BMAD-2026-07-23/brief.md)
+2026-07-23,20:13:34,Mel,brief approved by Mel
+2026-07-23,20:16:53,Mel,"brief approved by Mel (v3, after fixing revert-brief-status hook version-line bug)"
+2026-07-23,20:37:46,Mel,PRD generation gate check started for brief,agent-approval-gate-check/GATE,approved
+2026-07-23,20:39:24,Mel,brief modified after approval - status auto-reverted to draft,agent-approval-gate-check/GATE,draft
+2026-07-24,09:19:12,Mel,PRD generation gate check started for brief,brief,agent-approval-gate-check/GATE,draft
+2026-07-24,09:19:31,Mel,brief modified after approval - status auto-reverted to draft,brief,agent-approval-gate-check/GATE,draft
+2026-07-24,09:53:14,Mel,brief approval flow started,brief,agent-approval-grant/GRANT,draft
+2026-07-24,09:53:31,Mel,brief review stale or missing for v4 - regenerating via experion-brief-review,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:00:54,Mel,brief review started,brief,experion-brief-review/RB,draft
+2026-07-24,10:01:49,Mel,"brief review completed - report at _bmad-output/planning-artifacts/briefs/brief-BMAD-2026-07-23/review-report.md, brief_version 4",brief,experion-brief-review/RB,draft
+2026-07-24,10:02:05,Mel,brief review currency check passed for v4,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:04:34,Mel,brief first confirmation received,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:04:52,Mel,brief second confirmation received,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:05:02,Mel,Brief updated outside approval flow - status reverted to draft (_bmad-output/planning-artifacts/briefs/brief-BMAD-2026-07-23/brief.md),,,
+2026-07-24,10:05:30,Mel,brief approved by Mel,brief,agent-approval-grant/GRANT,approved
+2026-07-24,10:15:01,Mel,brief approval status corrected to approved v4 after pre-commit hook reverted it; approval-state.json mtime updated,brief,agent-approval-grant/GRANT,approved
+2026-07-24,10:37:35,Mel,PRD generation gate check started for brief,brief,agent-approval-gate-check/GATE,approved
+2026-07-24,10:37:55,Mel,brief modified after approval - status auto-reverted to draft,brief,agent-approval-gate-check/GATE,draft
+2026-07-24,10:38:27,Mel,brief approval flow started,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:39:05,Mel,brief pending edit committed before approval flow,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:39:28,Mel,brief review stale or missing for v5 - regenerating via experion-brief-review,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:39:40,Mel,brief review started,brief,experion-brief-review/RB,draft
+2026-07-24,10:40:29,Mel,"brief review completed - report at _bmad-output/planning-artifacts/briefs/brief-BMAD-2026-07-23/review-report.md, brief_version 5",brief,experion-brief-review/RB,draft
+2026-07-24,10:40:37,Mel,brief review currency check passed for v5,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:41:00,Mel,brief first confirmation received,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:41:19,Mel,brief second confirmation received,brief,agent-approval-grant/GRANT,draft
+2026-07-24,10:41:47,Mel,brief approved by Mel,brief,agent-approval-grant/GRANT,approved
+2026-07-24,11:32:42,Mel,PRD generated,prd,bmad-prd,final
