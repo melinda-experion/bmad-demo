@@ -6,20 +6,24 @@
 
 Edits the `status:` line inside the document's leading `---` frontmatter
 block to the approved value, bumps the frontmatter `version:` field (default
-0 if absent, incremented by 1), saves the file, then reads the file's own
-post-save mtime and records {doc_path, approved_mtime} under `doc_type` in
-a shared JSON state file. Other doc_type entries in that file are preserved
-untouched (read-modify-write merge, never a full overwrite). Finally stages
-and commits the document via git; a failed commit is reported in the JSON
-output rather than raised, since the approval itself has already succeeded.
+0 if absent, incremented by 1), saves the file, then hashes the file's own
+post-save content and records {doc_path, approved_hash} under `doc_type` in
+a shared JSON state file. A content hash is used instead of mtime because
+git does not preserve mtimes across clone/pull/checkout -- every teammate's
+local checkout would otherwise get a fresh mtime later than the recorded
+approval time, making every pull look like a stale edit. Other doc_type
+entries in that file are preserved untouched (read-modify-write merge,
+never a full overwrite). Finally stages and commits the document via git;
+a failed commit is reported in the JSON output rather than raised, since
+the approval itself has already succeeded.
 """
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
@@ -114,7 +118,7 @@ def main() -> int:
 
     doc_path.write_text(new_text, encoding="utf-8")
 
-    approved_mtime = datetime.fromtimestamp(doc_path.stat().st_mtime, tz=timezone.utc).isoformat()
+    approved_hash = hashlib.sha256(doc_path.read_bytes()).hexdigest()
 
     state_file = Path(args.state_file)
     state_file.parent.mkdir(parents=True, exist_ok=True)
@@ -128,7 +132,7 @@ def main() -> int:
         state = {}
 
     resolved_doc_path = str(doc_path.resolve())
-    state[args.doc_type] = {"doc_path": resolved_doc_path, "approved_mtime": approved_mtime}
+    state[args.doc_type] = {"doc_path": resolved_doc_path, "approved_hash": approved_hash}
     state_file.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
 
     git_commit = commit_document(doc_path, args.doc_type, new_version)
@@ -136,7 +140,7 @@ def main() -> int:
     result = {
         "doc_path": resolved_doc_path,
         "doc_type": args.doc_type,
-        "approved_mtime": approved_mtime,
+        "approved_hash": approved_hash,
         "state_file": str(state_file.resolve()),
         "version": new_version,
         "git_commit": git_commit,

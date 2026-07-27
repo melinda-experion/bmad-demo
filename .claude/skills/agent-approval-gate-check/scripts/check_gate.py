@@ -5,22 +5,26 @@
 """Check whether a document is approved and hasn't been edited since.
 
 Reads the shared approval-state.json, looks up `doc_type`, and compares the
-recorded approved_mtime against the document's current on-disk mtime. If the
-document was edited after approval, reverts its frontmatter status back to
-draft (atomically, as part of this check) and reports it as stale.
+recorded approved_hash against a fresh hash of the document's current
+content. A content hash is used instead of mtime because git does not
+preserve mtimes across clone/pull/checkout -- comparing mtimes would flag
+every fresh checkout as stale even when the content is byte-for-byte what
+was approved. If the document's content no longer matches the approved
+hash, its frontmatter status is reverted back to draft (atomically, as part
+of this check) and it is reported as stale.
 
 Prints one JSON object to stdout:
-  {"result": "ok", "approved_mtime": "..."}
+  {"result": "ok", "approved_hash": "..."}
   {"result": "blocked", "reason": "missing"}       -- doc_path does not exist
   {"result": "blocked", "reason": "unapproved"}     -- no matching approval on record
-  {"result": "blocked", "reason": "stale", "approved_mtime": "...", "current_mtime": "..."}
+  {"result": "blocked", "reason": "stale", "approved_hash": "...", "current_hash": "..."}
 """
 
 import argparse
+import hashlib
 import json
 import re
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
@@ -69,13 +73,10 @@ def main() -> int:
         print(json.dumps({"result": "blocked", "reason": "unapproved"}))
         return 0
 
-    approved_mtime = entry.get("approved_mtime")
-    current_mtime = datetime.fromtimestamp(doc_path.stat().st_mtime, tz=timezone.utc).isoformat()
+    approved_hash = entry.get("approved_hash")
+    current_hash = hashlib.sha256(doc_path.read_bytes()).hexdigest()
 
-    try:
-        is_stale = approved_mtime is None or current_mtime > approved_mtime
-    except TypeError:
-        is_stale = True
+    is_stale = approved_hash is None or current_hash != approved_hash
 
     if is_stale:
         text = doc_path.read_text(encoding="utf-8")
@@ -87,14 +88,14 @@ def main() -> int:
                 {
                     "result": "blocked",
                     "reason": "stale",
-                    "approved_mtime": approved_mtime,
-                    "current_mtime": current_mtime,
+                    "approved_hash": approved_hash,
+                    "current_hash": current_hash,
                 }
             )
         )
         return 0
 
-    print(json.dumps({"result": "ok", "approved_mtime": approved_mtime}))
+    print(json.dumps({"result": "ok", "approved_hash": approved_hash}))
     return 0
 
 

@@ -10,7 +10,7 @@ type: script-backed
 
 ## What Success Looks Like
 
-The document's frontmatter status is `{agent.approved_value}`, its frontmatter `version` has been bumped by one, and the shared state file has a fresh `{doc_type}` entry recording the document's own post-save mtime — but only after the user gave two separate, explicit affirmatives. A decline at either point leaves the document untouched, in draft, and logged. The approved document is also staged and committed to git under the new version number, though a failed commit does not undo the approval itself. If a companion review skill is wired up for this `doc_type` and its review artifact is missing or predates the document's current content, that review is regenerated automatically, targeted at the version about to be approved, before anything is asked of the user.
+The document's frontmatter status is `{agent.approved_value}`, its frontmatter `version` has been bumped by one, and the shared state file has a fresh `{doc_type}` entry recording a content hash of the document's own post-save content — but only after the user gave two separate, explicit affirmatives. A decline at either point leaves the document untouched, in draft, and logged. The approved document is also staged and committed to git under the new version number, though a failed commit does not undo the approval itself. If a companion review skill is wired up for this `doc_type` and its review artifact is missing or predates the document's current content, that review is regenerated automatically, targeted at the version about to be approved, before anything is asked of the user.
 
 ## Your Approach
 
@@ -73,8 +73,8 @@ uv run {skill-root}/scripts/grant_approval.py \
   --approved-value "{agent.approved_value}"
 ```
 
-This edits the document's frontmatter status, bumps its frontmatter `version`, saves it, reads the file's own resulting mtime, merges `{doc_type}: {doc_path, approved_mtime}` into the shared state file without disturbing any other doc_type's entry, and stages and commits the document to git with message `Approve {doc_type} v{version}`. Run `uv run scripts/grant_approval.py --help` for the full argument reference.
+This edits the document's frontmatter status, bumps its frontmatter `version`, saves it, hashes the file's own resulting content, merges `{doc_type}: {doc_path, approved_hash}` into the shared state file without disturbing any other doc_type's entry, and stages and commits the document to git with message `Approve {doc_type} v{version}`. A content hash is used rather than a timestamp because git does not preserve file mtimes across clone/pull/checkout — a teammate pulling the approval commit would otherwise get a local mtime later than the recorded approval time and the gate check would wrongly treat their untouched checkout as edited. Run `uv run scripts/grant_approval.py --help` for the full argument reference.
 
-Then log via `skill:agent-project-logger` with action `'{doc_label} approved by {user_name}'` (`--doc-status` here is `{agent.approved_value}`, the value the script just wrote). Report back the resolved `doc_path`, `approved_mtime`, and `version` from the script's output, verbatim.
+Then log via `skill:agent-project-logger` with action `'{doc_label} approved by {user_name}'` (`--doc-status` here is `{agent.approved_value}`, the value the script just wrote). Report back the resolved `doc_path`, `approved_hash`, and `version` from the script's output, verbatim.
 
 Check the script's `git_commit` field. If `git_commit.ok` is `false`, the document is still approved — do not treat this as a failed approval — but tell the user plainly that the commit did not go through, along with `git_commit.error`, so they can commit it themselves if needed.

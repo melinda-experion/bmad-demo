@@ -45,7 +45,7 @@ If the command errors out, exits non-zero, or its stdout is not a single parseab
 
 - **`{"result": "blocked", "reason": "unapproved"}`** — the `{doc_label}` exists but has no matching approval on record. Log via `skill:agent-project-logger` with action `'{downstream_label} blocked - {doc_label} not approved'`, then tell the user `{downstream_label}` cannot proceed until the `{doc_label}` is approved. Stop here.
 
-- **`{"result": "blocked", "reason": "stale", ...}`** — the `{doc_label}` was edited after it was approved; the script has already reverted its status to `{agent.draft_value}`. Log via `skill:agent-project-logger` with action `'{doc_label} modified after approval - status auto-reverted to draft'`, then tell the user the `{doc_label}` was edited since it was last approved and must be re-approved before `{downstream_label}` can continue. Stop here.
+- **`{"result": "blocked", "reason": "stale", ...}`** — the `{doc_label}`'s content no longer matches what was approved (its content hash differs from the recorded `approved_hash`); the script has already reverted its status to `{agent.draft_value}`. Log via `skill:agent-project-logger` with action `'{doc_label} modified after approval - status auto-reverted to draft'`, then tell the user the `{doc_label}` was edited since it was last approved and must be re-approved before `{downstream_label}` can continue. Stop here.
 
 ### No exceptions
 
