@@ -2,7 +2,8 @@
 title: BMAD Idea Launcher
 created: 2026-07-27
 updated: 2026-07-27
-approval_status: review
+approval_status: approved
+version: 1
 ---
 
 # Product Brief: BMAD Idea Launcher
