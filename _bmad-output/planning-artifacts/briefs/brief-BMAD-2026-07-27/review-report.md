@@ -1,12 +1,12 @@
 ---
 title: Review Report — BMAD Idea Launcher Brief
 date: 2026-07-27
-brief_version: 1
+brief_version: 2
 ---
 
 # Review Report: BMAD Idea Launcher Brief
 
-**Summary assessment:** Two of five dimensions carry findings serious enough to matter before a stakeholder reads this — most notably, the brief never says how "Generate ideas" actually produces three ideas, and the section that should let a reader know whether this project succeeded mixes a build constraint in with the only two testable criteria. The other three dimensions are workable but each carry at least a moderate or minor gap.
+**Summary assessment:** Two of five dimensions carry findings serious enough to matter before a stakeholder reads this — most notably, the brief never says how "Generate ideas" actually produces ideas, and the section that should let a reader know whether this project succeeded mixes a build constraint in with the only two testable criteria. The other three dimensions are workable but each carry at least a moderate or minor gap. Content is unchanged from the prior review except a one-word wording edit in the Executive Summary ("rapid implementation" → "rapid implementations"), which does not affect any finding below.
 
 ## 1. Problem Statement Clarity
 
