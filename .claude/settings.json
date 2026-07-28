@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/prompt_gateway_check.py\"",
+            "timeout": 20,
+            "statusMessage": "Screening prompt via PromptGateway..."
+          }
+        ]
+      }
+    ]
+  }
+}
