@@ -38,7 +38,7 @@ companions: []
 
 - **Binds:** FR-1, FR-3, FR-4
 - **Prevents:** introducing a DB, session store, cookies, or any server-side persistence the PRD puts out of scope; a stale prior request's state rendering against a newer one
-- **Rule:** Prompt text, the three rendered ideas, and the favorite selection live only in a single client-side state object in `app.js`, for the lifetime of the page. The server is stateless across requests. The prompt `<input>` is a **controlled element** — every input/change event writes `state.prompt`, making it the always-current source of truth (not just captured at submit). Submitting a new prompt synchronously clears `ideas` and resets `favoritedIndex` to `null` **before** the fetch is dispatched.
+- **Rule:** Prompt text, the three rendered ideas, and the favorite selection live only in a single client-side state object in `app.js`, for the lifetime of the page. The server is stateless across requests. The prompt `<input>` is a **controlled element** — every input/change event writes `state.prompt`, making it the always-current source of truth (not just captured at submit). Submitting a new prompt synchronously clears `ideas` and resets `favoritedIndex` to `null` **before** the fetch is dispatched. The `Generate ideas` button is disabled for the duration of an in-flight request — `app.js` never dispatches a second `/api/ideas` request while one is pending, so no overlapping fetches or stale-response races are possible.
 
 ### AD-4 — Favorite is single-select, client-owned
 
@@ -63,6 +63,8 @@ companions: []
 - **Binds:** FR-2, AD-2
 - **Prevents:** two AD-2-compliant adapters disagreeing on export name, call signature, or error-signaling and simply failing to interoperate with the handler
 - **Rule:** The adapter is `module.exports.generateIdeas` in `lib/ideaService.js`, signature `(prompt: string) => Promise<Array<{title, description}>>` resolving to exactly 3 entries. Failures are signaled **only** by throwing — never by a resolved `{ error }` envelope — so the handler's single `try/catch` is the sole error path. The adapter never caches or memoizes a response — every call is a genuinely fresh LLM call, even for a repeated identical prompt (PRD counter-metric SM-C1: don't optimize latency by reusing responses).
+
+  Thrown errors carry a `.code` property — one of `'TIMEOUT' | 'NETWORK' | 'MALFORMED'` — which the handler maps to AD-5's status codes (`TIMEOUT`→504, `NETWORK`→502, `MALFORMED`→500, any uncoded/unknown throw→500). The adapter owns and creates the `AbortController` internally, passing its `signal` directly to the outbound provider call — timeout enforcement aborts the actual network request, not just a settled promise on the handler side.
 
 ```mermaid
 flowchart LR
