@@ -6,12 +6,13 @@ altitude: feature
 paradigm: 'layered monolith'
 scope: 'BMAD Idea Launcher MVP: single-screen prompt-to-three-ideas web app'
 status: final
-approval_status: review
+approval_status: approved
 created: '2026-07-29'
 updated: '2026-07-29'
 binds: [FR-1, FR-2, FR-3, FR-4]
 sources: ['_bmad-output/planning-artifacts/prds/prd-BMAD-2026-07-27/prd.md']
 companions: []
+version: 1
 ---
 
 # Architecture Spine — BMAD Idea Launcher
