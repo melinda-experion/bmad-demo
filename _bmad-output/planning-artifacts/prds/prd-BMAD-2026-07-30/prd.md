@@ -1,11 +1,12 @@
 ---
 title: BMAD Idea Launcher v2 — Favoriting & Real LLM Backend
-approval_status: review
+approval_status: approved
 created: 2026-07-30
 updated: 2026-07-30
 confidence: 55
 confidence_label: Medium
 confidence_rationale: The FR content itself (LLM backend, favoriting) is well-grounded in the approved gap brief and user-confirmed scope decisions. But confidence is capped at Medium by one deliberately unresolved, high-impact item — whether this entire PRD duplicates already-approved architecture/epics artifacts not available on disk (Open Question 1, explicitly deferred rather than checked) — plus 3 remaining [ASSUMPTION] tags and 5 Open Questions overall.
+version: 1
 ---
 
 # PRD: BMAD Idea Launcher v2 — Favoriting & Real LLM Backend
