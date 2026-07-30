@@ -6,13 +6,13 @@ altitude: feature
 paradigm: 'layered monolith'
 scope: 'BMAD Idea Launcher v2: real LLM-backed idea generation + favoriting'
 status: final
-approval_status: review
+approval_status: approved
 created: '2026-07-30'
 updated: '2026-07-30'
 binds: [FR-1, FR-2]
 sources: ['_bmad-output/planning-artifacts/prds/prd-BMAD-2026-07-30/prd.md']
 companions: []
-version: 0
+version: 1
 confidence: 55
 confidence_label: Medium
 confidence_rationale: All three reviewer passes (rubric, tech-currency, adversarial) ran and every finding they raised was resolved in this draft rather than deferred, which is a strong signal. But this is a Fast-path draft with 4 remaining [ASSUMPTION] tags (env-var name, a newly-introduced state-object decision not yet verified in code, an invented deselect behavior, an open 30s timeout target), and — most significantly — it deliberately duplicates a pre-existing approved spine covering the same scope, a redundancy accepted by the user but not resolved.
