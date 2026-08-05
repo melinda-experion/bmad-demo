@@ -17,6 +17,8 @@ activation_steps_prepend = [
 on_complete = [
   "skill:agent-project-logger with action 'Architecture generated'",
 
+  "skill:agent-project-logger with action 'Confidence scored: <confidence_label> (<confidence>/100) for architecture spine', stage='architecture', doc_status='draft', confidence=<ARCHITECTURE-SPINE.md frontmatter confidence>, confidence_label=<ARCHITECTURE-SPINE.md frontmatter confidence_label>, confidence_rationale=<ARCHITECTURE-SPINE.md frontmatter confidence_rationale>, doc_path=<resolved path to ARCHITECTURE-SPINE.md>",
+
   "Set ARCHITECTURE-SPINE.md's approval_status frontmatter field to 'review' and save, now that the review is current.",
 
   "skill:agent-approval-grant with doc_type='architecture', doc_path=<resolved path to ARCHITECTURE-SPINE.md>, doc_label='architecture spine'",

@@ -5,6 +5,38 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { createServer } = require("../server");
 
+const ORIGINAL_FETCH = global.fetch;
+const ORIGINAL_API_KEY = process.env.IDEA_LLM_API_KEY;
+const ORIGINAL_MODEL = process.env.ANTHROPIC_MODEL;
+
+function mockProviderEnv() {
+  process.env.IDEA_LLM_API_KEY = "test-api-key";
+  process.env.ANTHROPIC_MODEL = "claude-sonnet-5";
+}
+
+function restoreProviderEnv() {
+  global.fetch = ORIGINAL_FETCH;
+  if (ORIGINAL_API_KEY === undefined) {
+    delete process.env.IDEA_LLM_API_KEY;
+  } else {
+    process.env.IDEA_LLM_API_KEY = ORIGINAL_API_KEY;
+  }
+  if (ORIGINAL_MODEL === undefined) {
+    delete process.env.ANTHROPIC_MODEL;
+  } else {
+    process.env.ANTHROPIC_MODEL = ORIGINAL_MODEL;
+  }
+}
+
+function mockProviderSuccess(ideas) {
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      content: [{ type: "text", text: JSON.stringify(ideas) }],
+    }),
+  });
+}
+
 async function startServer() {
   const server = createServer();
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -19,9 +51,16 @@ async function stopServer(server) {
 }
 
 test("POST /api/ideas returns exactly three ideas for a valid prompt", async () => {
+  const nodeFetch = global.fetch;
+  mockProviderEnv();
+  mockProviderSuccess([
+    { title: "Note Vault", description: "A tagging system for study notes." },
+    { title: "Note Sync", description: "Cross-device sync for study notes." },
+    { title: "Note Quiz", description: "Turns notes into quiz flashcards." },
+  ]);
   const { server, baseUrl } = await startServer();
   try {
-    const response = await fetch(`${baseUrl}/api/ideas`, {
+    const response = await nodeFetch(`${baseUrl}/api/ideas`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ prompt: "A tool for organizing study notes" }),
@@ -39,6 +78,7 @@ test("POST /api/ideas returns exactly three ideas for a valid prompt", async () 
     });
   } finally {
     await stopServer(server);
+    restoreProviderEnv();
   }
 });
 
@@ -269,5 +309,157 @@ test("POST /api/ideas rejects empty prompts", async () => {
     assert.match(payload.error.toLowerCase(), /required/i);
   } finally {
     await stopServer(server);
+  }
+});
+
+test("POST /api/ideas rejects invalid JSON bodies with 400", async () => {
+  const { server, baseUrl } = await startServer();
+  try {
+    const response = await fetch(`${baseUrl}/api/ideas`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "{not valid json",
+    });
+
+    assert.equal(response.status, 400);
+  } finally {
+    await stopServer(server);
+  }
+});
+
+test("POST /api/ideas rejects prompts over 2000 characters with 400", async () => {
+  const { server, baseUrl } = await startServer();
+  try {
+    const response = await fetch(`${baseUrl}/api/ideas`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ prompt: "a".repeat(2001) }),
+    });
+
+    assert.equal(response.status, 400);
+    const payload = await response.json();
+    assert.match(payload.error, /2000/);
+  } finally {
+    await stopServer(server);
+  }
+});
+
+test("POST /api/ideas returns 504 when the provider call times out", async () => {
+  const nodeFetch = global.fetch;
+  mockProviderEnv();
+  const ideaService = require("../lib/ideaService");
+  ideaService.__setTimeoutMsForTest(10);
+  global.fetch = async (url, options) =>
+    new Promise((resolve, reject) => {
+      options.signal.addEventListener("abort", () => {
+        const abortError = new Error("aborted");
+        abortError.name = "AbortError";
+        reject(abortError);
+      });
+    });
+
+  const { server, baseUrl } = await startServer();
+  try {
+    const response = await nodeFetch(`${baseUrl}/api/ideas`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ prompt: "A study planner" }),
+    });
+
+    assert.equal(response.status, 504);
+    const payload = await response.json();
+    assert.ok(payload.error);
+  } finally {
+    await stopServer(server);
+    ideaService.__setTimeoutMsForTest(25000);
+    restoreProviderEnv();
+  }
+});
+
+test("POST /api/ideas returns 502 when the provider call fails before responding", async () => {
+  const nodeFetch = global.fetch;
+  mockProviderEnv();
+  global.fetch = async () => {
+    throw new Error("connect ECONNREFUSED");
+  };
+
+  const { server, baseUrl } = await startServer();
+  try {
+    const response = await nodeFetch(`${baseUrl}/api/ideas`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ prompt: "A study planner" }),
+    });
+
+    assert.equal(response.status, 502);
+    const payload = await response.json();
+    assert.ok(payload.error);
+  } finally {
+    await stopServer(server);
+    restoreProviderEnv();
+  }
+});
+
+test("POST /api/ideas returns 500 when the provider output doesn't parse into exactly 3 ideas", async () => {
+  const nodeFetch = global.fetch;
+  mockProviderEnv();
+  mockProviderSuccess([{ title: "Only one", description: "Solo idea" }]);
+
+  const { server, baseUrl } = await startServer();
+  try {
+    const response = await nodeFetch(`${baseUrl}/api/ideas`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ prompt: "A study planner" }),
+    });
+
+    assert.equal(response.status, 500);
+    const payload = await response.json();
+    assert.ok(payload.error);
+  } finally {
+    await stopServer(server);
+    restoreProviderEnv();
+  }
+});
+
+test("POST /api/ideas never caches: two identical prompts each independently reach the provider", async () => {
+  const nodeFetch = global.fetch;
+  mockProviderEnv();
+  let callCount = 0;
+  global.fetch = async () => {
+    callCount += 1;
+    return {
+      ok: true,
+      json: async () => ({
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify([
+              { title: "One", description: "First" },
+              { title: "Two", description: "Second" },
+              { title: "Three", description: "Third" },
+            ]),
+          },
+        ],
+      }),
+    };
+  };
+
+  const { server, baseUrl } = await startServer();
+  try {
+    const requestOptions = {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ prompt: "Repeat this exact prompt" }),
+    };
+    const first = await nodeFetch(`${baseUrl}/api/ideas`, requestOptions);
+    const second = await nodeFetch(`${baseUrl}/api/ideas`, requestOptions);
+
+    assert.equal(first.status, 200);
+    assert.equal(second.status, 200);
+    assert.equal(callCount, 2);
+  } finally {
+    await stopServer(server);
+    restoreProviderEnv();
   }
 });

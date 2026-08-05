@@ -5,6 +5,16 @@ A flexible starting structure for the executive product brief. Adapt aggressivel
 ## Default Structure
 
 ```markdown
+---
+title: {Product Name}
+status: {draft|final}
+created: {YYYY-MM-DD}
+updated: {YYYY-MM-DD}
+confidence: {0-100}
+confidence_label: {Low|Medium|High}
+confidence_rationale: '{1-2 sentences naming what most moved the score}'
+---
+
 # Product Brief: {Product Name}
 
 ## Executive Summary

@@ -17,6 +17,8 @@ activation_steps_prepend = [
 on_complete = [
   "skill:agent-project-logger with action 'PRD generated'",
 
+  "skill:agent-project-logger with action 'Confidence scored: <confidence_label> (<confidence>/100) for PRD', stage='prd', doc_status='draft', confidence=<prd.md frontmatter confidence>, confidence_label=<prd.md frontmatter confidence_label>, confidence_rationale=<prd.md frontmatter confidence_rationale>, doc_path=<resolved path to prd.md>",
+
   "Set prd.md's approval_status frontmatter field to 'review' and save, now that the review artifact exists.",
 
   "skill:agent-approval-grant with doc_type='prd', doc_path=<resolved path to prd.md>, doc_label='PRD'",

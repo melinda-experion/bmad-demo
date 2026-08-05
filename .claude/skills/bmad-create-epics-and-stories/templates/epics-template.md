@@ -1,6 +1,9 @@
 ---
 stepsCompleted: []
 inputDocuments: []
+confidence: 0
+confidence_label: ''
+confidence_rationale: ''
 ---
 
 # {{project_name}} - Epic Breakdown

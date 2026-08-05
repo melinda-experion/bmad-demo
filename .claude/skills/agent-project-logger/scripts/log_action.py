@@ -4,12 +4,14 @@
 # ///
 """Append one timestamped action row to a project's CSV log.
 
-Creates the log file with a `date,time,user,action,stage,agent,doc_status`
+Creates the log file with a
+`date,time,user,action,stage,agent,doc_status,confidence,confidence_label,confidence_rationale,doc_path`
 header on first write. If an existing log still has an older header
-(e.g. `date,time,user,action` or `date,time,user,action,workflow,doc_status`),
-that header row is widened in place to the current schema — existing logged
-rows are never rewritten, reordered, or truncated, only the header label
-itself is brought up to date.
+(e.g. `date,time,user,action`, `date,time,user,action,workflow,doc_status`,
+or `date,time,user,action,stage,agent,doc_status`), that header row is
+widened in place to the current schema — existing logged rows are never
+rewritten, reordered, or truncated, only the header label itself is brought
+up to date.
 """
 
 import argparse
@@ -18,7 +20,19 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-HEADER = ["date", "time", "user", "action", "stage", "agent", "doc_status"]
+HEADER = [
+    "date",
+    "time",
+    "user",
+    "action",
+    "stage",
+    "agent",
+    "doc_status",
+    "confidence",
+    "confidence_label",
+    "confidence_rationale",
+    "doc_path",
+]
 
 
 def resolve_path(pattern: str, project_name: str, output_dir: Path) -> Path:
@@ -34,6 +48,10 @@ def append_row(
     agent: str,
     doc_status: str,
     now: datetime,
+    confidence: str = "",
+    confidence_label: str = "",
+    confidence_rationale: str = "",
+    doc_path: str = "",
 ) -> list:
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -55,6 +73,10 @@ def append_row(
         stage,
         agent,
         doc_status,
+        confidence,
+        confidence_label,
+        confidence_rationale,
+        doc_path,
     ]
     rows.append(row)
 
@@ -67,7 +89,8 @@ def append_row(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Append one action row to a project's CSV log. "
-        "Creates the file with a date,time,user,action,stage,agent,doc_status header if it doesn't exist. "
+        "Creates the file with a date,time,user,action,stage,agent,doc_status,"
+        "confidence,confidence_label,confidence_rationale,doc_path header if it doesn't exist. "
         "Never reorders or deletes existing rows."
     )
     parser.add_argument("--project-name", required=True, help="Project name substituted into the filename pattern")
@@ -89,6 +112,26 @@ def main() -> int:
         help="Current status of the document the action concerns, e.g. draft/approved (default: empty)",
     )
     parser.add_argument(
+        "--confidence",
+        default="",
+        help="Numeric confidence score (0-100) when the action concerns a confidence-scoring event (default: empty)",
+    )
+    parser.add_argument(
+        "--confidence-label",
+        default="",
+        help="Confidence label (Low/Medium/High) when the action concerns a confidence-scoring event (default: empty)",
+    )
+    parser.add_argument(
+        "--confidence-rationale",
+        default="",
+        help="1-2 sentence rationale for the confidence score, when the action concerns a confidence-scoring event (default: empty)",
+    )
+    parser.add_argument(
+        "--doc-path",
+        default="",
+        help="Path to the document the action concerns, when applicable (default: empty)",
+    )
+    parser.add_argument(
         "--pattern",
         default="{project_name}-project-log.csv",
         help="Filename pattern; {project_name} is substituted (default: %(default)s)",
@@ -107,7 +150,17 @@ def main() -> int:
 
     try:
         row = append_row(
-            log_path, args.user, args.action, args.stage, args.agent, args.doc_status, datetime.now()
+            log_path,
+            args.user,
+            args.action,
+            args.stage,
+            args.agent,
+            args.doc_status,
+            datetime.now(),
+            confidence=args.confidence,
+            confidence_label=args.confidence_label,
+            confidence_rationale=args.confidence_rationale,
+            doc_path=args.doc_path,
         )
     except OSError as exc:
         print(f"error: {exc}", file=sys.stderr)

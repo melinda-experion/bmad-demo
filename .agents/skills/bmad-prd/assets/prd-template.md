@@ -5,8 +5,12 @@
 ```markdown
 ---
 title: {Product Name}
+status: {draft|final}
 created: {YYYY-MM-DD}
 updated: {YYYY-MM-DD}
+confidence: {0-100}
+confidence_label: {Low|Medium|High}
+confidence_rationale: '{1-2 sentences naming what most moved the score}'
 ---
 
 # PRD: {Product Name}

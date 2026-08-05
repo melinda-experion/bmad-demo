@@ -8,6 +8,9 @@ scope: '{what this spine governs}'
 status: draft               # draft · final
 created: '{date}'
 updated: '{date}'
+confidence: 0                # 0-100, self-assessed at Finalize
+confidence_label: ''         # Low · Medium · High, derived from confidence
+confidence_rationale: ''     # 1-2 sentences naming what most moved the score
 binds: []                   # capability / unit IDs governed (from the driving spec; at epic altitude, also the inherited parent AD ids)
 sources: []
 companions: []

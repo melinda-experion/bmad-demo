@@ -42,7 +42,7 @@ class AppendRowTests(unittest.TestCase):
             self.assertEqual(rows[0], log_action.HEADER)
             self.assertEqual(
                 rows[1],
-                ["2026-07-17", "14:32:05", "Mel", "Deployed v2 to staging", "prd", "agent-project-logger/LOG", "draft"],
+                ["2026-07-17", "14:32:05", "Mel", "Deployed v2 to staging", "prd", "agent-project-logger/LOG", "draft", "", "", "", ""],
             )
 
     def test_appends_without_rewriting_existing_rows(self):
@@ -60,9 +60,9 @@ class AppendRowTests(unittest.TestCase):
             self.assertEqual(len(rows), 3)
             self.assertEqual(
                 rows[1],
-                ["2026-07-17", "09:00:00", "Mel", "First action", "brief", "experion-brief-review/RB", "draft"],
+                ["2026-07-17", "09:00:00", "Mel", "First action", "brief", "experion-brief-review/RB", "draft", "", "", "", ""],
             )
-            self.assertEqual(rows[2], ["2026-07-17", "10:00:00", "Sam", "Second action", "prd", "", ""])
+            self.assertEqual(rows[2], ["2026-07-17", "10:00:00", "Sam", "Second action", "prd", "", "", "", "", "", ""])
 
     def test_no_header_written_when_file_already_exists(self):
         with TemporaryDirectory() as tmp:
@@ -77,6 +77,64 @@ class AppendRowTests(unittest.TestCase):
 
             header_count = sum(1 for row in rows if row == log_action.HEADER)
             self.assertEqual(header_count, 1)
+
+    def test_confidence_columns_recorded(self):
+        with TemporaryDirectory() as tmp:
+            log_path = Path(tmp) / "acme-project-log.csv"
+            now = datetime(2026, 7, 30, 9, 0, 0)
+
+            log_action.append_row(
+                log_path,
+                "Mel",
+                "Confidence scored: 82 (High) for prd.md",
+                "prd",
+                "bmad-prd",
+                "final",
+                now,
+                confidence="82",
+                confidence_label="High",
+                confidence_rationale="All FRs traced to confirmed input; no unresolved assumptions.",
+                doc_path="_bmad-output/planning-artifacts/prd/prd.md",
+            )
+
+            with log_path.open(newline="", encoding="utf-8") as f:
+                rows = list(csv.reader(f))
+
+            self.assertEqual(rows[0], log_action.HEADER)
+            self.assertEqual(
+                rows[1],
+                [
+                    "2026-07-30",
+                    "09:00:00",
+                    "Mel",
+                    "Confidence scored: 82 (High) for prd.md",
+                    "prd",
+                    "bmad-prd",
+                    "final",
+                    "82",
+                    "High",
+                    "All FRs traced to confirmed input; no unresolved assumptions.",
+                    "_bmad-output/planning-artifacts/prd/prd.md",
+                ],
+            )
+
+    def test_widens_older_seven_column_header_in_place(self):
+        with TemporaryDirectory() as tmp:
+            log_path = Path(tmp) / "acme-project-log.csv"
+            old_header = ["date", "time", "user", "action", "stage", "agent", "doc_status"]
+            with log_path.open("w", newline="", encoding="utf-8") as f:
+                csv.writer(f).writerows(
+                    [old_header, ["2026-07-17", "09:00:00", "Mel", "First action", "brief", "", "draft"]]
+                )
+
+            now = datetime(2026, 7, 30, 9, 0, 0)
+            log_action.append_row(log_path, "Mel", "Second action", "", "", "", now)
+
+            with log_path.open(newline="", encoding="utf-8") as f:
+                rows = list(csv.reader(f))
+
+            self.assertEqual(rows[0], log_action.HEADER)
+            self.assertEqual(rows[1], ["2026-07-17", "09:00:00", "Mel", "First action", "brief", "", "draft"])
 
 
 if __name__ == "__main__":

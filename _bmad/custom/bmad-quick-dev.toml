@@ -1,0 +1,8 @@
+[workflow]
+
+# Runs as the final terminal instruction, after step-05-present has marked
+# {spec_file} "done" and (optionally) committed. Scores every file changed
+# since {baseline_commit} objectively via skill:confidence-scorer, which
+# computes every number from measured tool output (test runner, linter,
+# git diff, approval-state.json) -- never from the model's own impression.
+on_complete = "Invoke skill:confidence-scorer once per file changed since {baseline_commit} (never batched, never skipped). For each file: derive tests-passed/tests-failed and lint-errors/lint-warnings by running the project's test runner and linter against that file; derive lines-changed from `git diff --stat {baseline_commit} -- <file>`. Pass `--revision-cycles` = {spec_file} frontmatter `review_loop_iteration` (0 if absent), `--doc-status` = {spec_file} frontmatter `status` (now `done`), `--doc-type \"{spec_file}\"`, `--stage \"quick-dev\"`. Confirm exactly one audit log row was appended per changed file, then report the file/confidence/label table to the user."

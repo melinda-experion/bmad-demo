@@ -13,6 +13,8 @@ activation_steps_prepend = [
 on_complete = [
   "skill:agent-project-logger with action 'Brief generated'",
 
+  "skill:agent-project-logger with action 'Confidence scored: <confidence_label> (<confidence>/100) for brief', stage='brief', doc_status='draft', confidence=<brief.md frontmatter confidence>, confidence_label=<brief.md frontmatter confidence_label>, confidence_rationale=<brief.md frontmatter confidence_rationale>, doc_path=<resolved path to brief.md>",
+
   "skill:experion-brief-review",
 
   "skill:agent-project-logger with action 'Brief review report generated'",

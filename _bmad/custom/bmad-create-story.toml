@@ -1,0 +1,4 @@
+[workflow]
+persistent_facts = [
+  "Always load .ai-context.md, .ai-context-security.md, and .ai-context-dependencies.md as foundational context before working on any story. Additionally load .ai-context-api.md when the story touches the /api/ideas request/response contract, .ai-context-errors.md when it touches error handling or status codes, and .ai-context-idea-generation.md when it touches lib/ideaService.js, the /api/ideas handler, or client-side idea/favorite state.",
+]

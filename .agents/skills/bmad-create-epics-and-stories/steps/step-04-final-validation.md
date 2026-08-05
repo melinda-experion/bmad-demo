@@ -117,7 +117,11 @@ For each epic, review stories in order:
 - ❌ WRONG: Story references features not yet implemented
 - ✅ RIGHT: Each story builds only on previous stories
 
-### 6. Complete and Save
+### 6. Confidence Scoring
+
+Self-assess per `references/confidence-scoring.md` — for this document, weigh unresolved FR coverage gaps, deferred dependency/independence concerns, and story quality issues surfaced above but not fully resolved. Write `confidence`, `confidence_label`, `confidence_rationale` into the epics.md frontmatter.
+
+### 7. Complete and Save
 
 If all validations pass:
 

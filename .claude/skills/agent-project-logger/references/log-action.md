@@ -10,7 +10,7 @@ type: script-backed
 
 ## What Success Looks Like
 
-Given an action description and a project name, exactly one new row lands at the bottom of that project's log, and every row that was already there is untouched — same order, same content. The row also records which development-cycle stage the action concerns, which skill/agent was executing, and, when the action concerns a document, that document's current status. If this is the project's first logged action, the file is created with its header first; if the log already exists under an older header, that header row is widened to the current schema without touching any logged row beneath it.
+Given an action description and a project name, exactly one new row lands at the bottom of that project's log, and every row that was already there is untouched — same order, same content. The row also records which development-cycle stage the action concerns, which skill/agent was executing, and, when the action concerns a document, that document's current status. When the action is a confidence-scoring event, the row additionally records the numeric confidence score, its Low/Medium/High label, the rationale, and the path to the document scored. If this is the project's first logged action, the file is created with its header first; if the log already exists under an older header, that header row is widened to the current schema without touching any logged row beneath it.
 
 ## Your Approach
 
@@ -30,12 +30,21 @@ Check `{project-root}/_bmad/custom/project.json` for a non-empty `project_name` 
 
 Never block or prompt the user to supply these — they're best-effort context, not a required confirmation. Missing any of them is fine and is logged as an empty field, not an error.
 
+### Resolve confidence fields (only when this action logs a confidence-scoring event)
+
+- `{confidence}` — the numeric 0-100 confidence score just written to the document's frontmatter.
+- `{confidence_label}` — the Low/Medium/High label accompanying that score.
+- `{confidence_rationale}` — the 1-2 sentence rationale accompanying that score.
+- `{doc_path}` — the path to the document that was scored.
+
+Only pass these when the calling flow just computed a confidence score for a document; otherwise leave all four empty.
+
 ### Log the action
 
 Resolve the filename pattern from `{agent.log_filename_pattern}` (falls back to `{project_name}-project-log.csv` if unset), then run:
 
 ```
-uv run scripts/log_action.py --project-name "<name>" --action "<description>" --user "{user_name}" --stage "<stage>" --agent "<agent>" --doc-status "<doc_status>" --pattern "{agent.log_filename_pattern}" --output-dir "{project-root}/_bmad-output"
+uv run scripts/log_action.py --project-name "<name>" --action "<description>" --user "{user_name}" --stage "<stage>" --agent "<agent>" --doc-status "<doc_status>" --confidence "<confidence>" --confidence-label "<confidence_label>" --confidence-rationale "<confidence_rationale>" --doc-path "<doc_path>" --pattern "{agent.log_filename_pattern}" --output-dir "{project-root}/_bmad-output"
 ```
 
 Run `uv run scripts/log_action.py --help` for the full argument reference. The script resolves the filename, creates the file with its header row (or widens an existing older header in place) if needed, and appends exactly one row — it never touches existing rows. Report back the resolved filename and the row that was written, verbatim.
