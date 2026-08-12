@@ -1,0 +1,25 @@
+[workflow]
+
+spine_template = "{project-root}/_bmad/custom/templates/architecture-spine-template.md"
+
+persistent_facts = [
+  "Whenever the user requests, confirms, or makes a substantive change to the architecture spine's content during this conversation (any point before or after Finalize — not only at on_complete): first, if ARCHITECTURE-SPINE.md's current frontmatter approval_status is 'approved', edit it back to 'draft' and save that change before or together with the content edit — an approved spine whose content changes is no longer approved, regardless of whether the change is committed to git. Then log the update immediately via skill:agent-project-logger with action 'Architecture updated via chat: <one-line summary of the change>' (include 'status reverted to draft' in the action text if the revert applied), in addition to the standard .memlog.md entry. Do this for each such change as it happens, not batched at the end.",
+
+  "Whenever the Reviewer Gate's Validate-intent consolidated report is produced (at Finalize step 3 or under a standalone Validate intent, including when agent-approval-grant invokes this skill's Validate intent to refresh a stale review): write it to the fixed path {doc_workspace}/review-report.md — the canonical artifact the approval flow checks for currency — with frontmatter architecture_version (the spine's current frontmatter version, 0 if absent, plus one — the version the spine will carry once next approved) and date, ahead of the report body. This replaces whatever was there for a prior version. The per-lens scratch files under reviews/ are unaffected and are not the canonical artifact.",
+]
+
+activation_steps_prepend = [
+  "skill:agent-approval-gate-check with doc_type='prd', doc_path=<resolved path to the PRD this architecture is based on>, doc_label='PRD', downstream_label='architecture generation'",
+
+  "skill:agent-project-logger with action 'Architecture generation started'",
+]
+
+on_complete = [
+  "skill:agent-project-logger with action 'Architecture generated'",
+
+  "skill:agent-project-logger with action 'Confidence scored: <confidence_label> (<confidence>/100) for architecture spine', stage='architecture', doc_status='draft', confidence=<ARCHITECTURE-SPINE.md frontmatter confidence>, confidence_label=<ARCHITECTURE-SPINE.md frontmatter confidence_label>, confidence_rationale=<ARCHITECTURE-SPINE.md frontmatter confidence_rationale>, doc_path=<resolved path to ARCHITECTURE-SPINE.md>",
+
+  "Set ARCHITECTURE-SPINE.md's approval_status frontmatter field to 'review' and save, now that the review is current.",
+
+  "skill:agent-approval-grant with doc_type='architecture', doc_path=<resolved path to ARCHITECTURE-SPINE.md>, doc_label='architecture spine'",
+]

@@ -1,0 +1,25 @@
+[workflow]
+
+brief_template = "{project-root}/_bmad/custom/templates/brief-template.md"
+
+persistent_facts = [
+  "Whenever the user requests, confirms, or makes a substantive change to the brief's content during this conversation (any point before or after Finalize — not only at on_complete): first, if brief.md's current frontmatter approval_status is 'approved', edit it back to 'draft' and save that change before or together with the content edit — an approved brief whose content changes is no longer approved, regardless of whether the change is committed to git. Then log the update immediately via skill:agent-project-logger with action 'Brief updated via chat: <one-line summary of the change>' (include 'status reverted to draft' in the action text if the revert applied), in addition to the standard .memlog.md entry. Do this for each such change as it happens, not batched at the end.",
+]
+
+activation_steps_prepend = [
+  "skill:agent-project-logger with action 'Brief generation started'",
+]
+
+on_complete = [
+  "skill:agent-project-logger with action 'Brief generated'",
+
+  "skill:agent-project-logger with action 'Confidence scored: <confidence_label> (<confidence>/100) for brief', stage='brief', doc_status='draft', confidence=<brief.md frontmatter confidence>, confidence_label=<brief.md frontmatter confidence_label>, confidence_rationale=<brief.md frontmatter confidence_rationale>, doc_path=<resolved path to brief.md>",
+
+  "skill:experion-brief-review",
+
+  "skill:agent-project-logger with action 'Brief review report generated'",
+
+  "Set brief.md's approval_status frontmatter field to 'review' and save, now that the review report exists.",
+
+  "skill:agent-approval-grant with doc_type='brief', doc_path=<resolved path to brief.md>, doc_label='brief', review_artifact_label='review report', review_skill='experion-brief-review'",
+]

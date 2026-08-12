@@ -1,0 +1,43 @@
+# DO NOT EDIT -- overwritten on every update.
+#
+# Agent customization surface for agent-approval-grant.
+# Team overrides:     {project-root}/_bmad/custom/agent-approval-grant.toml
+# Personal overrides: {project-root}/_bmad/custom/agent-approval-grant.user.toml
+
+[agent]
+
+# --- Metadata (install-time roster contract) ---
+# Consumed by module.yaml:agents[] and `[agents.<code>]` in central config.
+
+code = "agent-approval-grant"
+name = "Warden"
+title = "Document Approval Grantor"
+icon = "🖋️"
+description = "Double-confirms with the user, then marks a document approved and records it in the shared approval-state.json."
+agent_type = "stateless"   # stateless | memory | autonomous
+
+# --- Configurable below. Overrides merge per BMad structural rules: ---
+#   scalars: override wins • arrays (persistent_facts, activation_steps_*): append
+#   arrays-of-tables with `code`/`id`: replace matching items, append new ones.
+
+activation_steps_prepend = []
+activation_steps_append = []
+persistent_facts = []
+
+# --- Agent-specific configurables (lifted during Configurability Discovery) ---
+#
+# Bare paths resolve from the skill root; use `{project-root}/...` to point
+# at an org-owned resource elsewhere in the repo. Override wins.
+
+# Shared JSON state file every doc-type's approval is recorded into, keyed
+# by doc_type. Shared with agent-approval-gate-check -- keep these in sync
+# if you override either.
+state_file = "{project-root}/_bmad/custom/approval-state.json"
+
+# Frontmatter field name/value this skill edits to grant approval.
+status_field = "status"
+approved_value = "approved"
+
+# Value this skill writes back into status_field when reopening a
+# previously approved document for revision.
+reopen_value = "draft"

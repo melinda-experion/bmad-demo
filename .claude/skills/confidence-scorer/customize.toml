@@ -1,0 +1,71 @@
+# DO NOT EDIT -- overwritten on every update.
+#
+# Agent customization surface for confidence-scorer.
+# Team overrides:     {project-root}/_bmad/custom/confidence-scorer.toml
+# Personal overrides: {project-root}/_bmad/custom/confidence-scorer.user.toml
+
+[agent]
+
+# --- Metadata (install-time roster contract) ---
+# Consumed by module.yaml:agents[] and `[agents.<code>]` in central config.
+
+code = "confidence-scorer"
+name = "Audit"
+title = "Code Confidence Scorer"
+icon = "📊"
+description = "Computes a deterministic per-file code-confidence score from tests, lint, diff size, and revision cycles, and logs it to the project audit log."
+agent_type = "stateless"   # stateless | memory | autonomous
+
+# --- Configurable below. Overrides merge per BMad structural rules: ---
+#   scalars: override wins • arrays (persistent_facts, activation_steps_*): append
+#   arrays-of-tables with `code`/`id`: replace matching items, append new ones.
+
+activation_steps_prepend = []
+activation_steps_append = []
+persistent_facts = []
+
+# --- Agent-specific configurables (lifted during Configurability Discovery) ---
+#
+# Swappable weights, penalties, and bucket cutoffs the builder surfaced with
+# the author. None of these are hardcoded in the script -- they are passed
+# through as CLI arguments, so a team can retune scoring by editing only
+# this file. Override wins.
+
+# Path to the shared approval-state.json used to resolve a run's
+# doc_status (approved/draft/unapproved) and revision cycle count.
+state_file = "{project-root}/_bmad/custom/approval-state.json"
+
+# State-file key for the run being scored, e.g. "story-3.2". The caller
+# supplies the concrete value per run; this is the fallback key name used
+# when no run-specific key is given.
+doc_type = "story"
+
+# Filename pattern for the project's audit log, consumed by
+# agent-project-logger's log_action.py. {project_name} is substituted.
+log_filename_pattern = "{project_name}-project-log.csv"
+
+# --- Signal weights (must sum to something sensible; any positive ratio works) ---
+test_weight = 40
+lint_weight = 25
+diff_weight = 20
+revision_weight = 15
+
+# Test sub-score used when no tests touch a given file at all (neither
+# fully confident nor fully unconfident -- untested code is a real risk
+# but not the same as a failing test).
+no_tests_score = 50
+
+# Points deducted from the lint sub-score per error / per warning.
+error_penalty = 20
+warning_penalty = 5
+
+# JSON list of [max_ratio, score] pairs, ascending, for lines_changed /
+# file_size. First pair whose max_ratio the actual ratio falls under wins.
+diff_ratio_cutoffs = "[[0.1,100],[0.3,80],[0.6,60],[1.0,40],[999999,20]]"
+
+# JSON list of [max_cycles, score] pairs, ascending, for revision cycle count.
+revision_cycle_cutoffs = "[[0,100],[1,80],[2,60],[3,40],[999999,20]]"
+
+# JSON list of [min_score, label] pairs for the final confidence label.
+# First pair whose min_score the final score meets or exceeds wins.
+label_cutoffs = "[[80,\"High\"],[50,\"Medium\"],[0,\"Low\"]]"

@@ -1,8 +1,17 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { generateIdeas } = require("./lib/ideaService");
 
 const publicDir = path.join(__dirname, "public");
+
+const ERROR_CODE_STATUS = {
+  TIMEOUT: 504,
+  NETWORK: 502,
+  MALFORMED: 500,
+};
+
+const MAX_PROMPT_LENGTH = 2000;
 
 function sendFile(res, filePath, contentType) {
   fs.readFile(filePath, (error, content) => {
@@ -24,7 +33,7 @@ function createServer() {
       req.on("data", (chunk) => {
         body += chunk;
       });
-      req.on("end", () => {
+      req.on("end", async () => {
         let payload = {};
         try {
           payload = body ? JSON.parse(body) : {};
@@ -50,23 +59,27 @@ function createServer() {
           return;
         }
 
-        const ideas = [
-          {
-            title: `${prompt} Starter`,
-            description: `A practical first step for exploring ${prompt.toLowerCase()}.`,
-          },
-          {
-            title: `${prompt} MVP`,
-            description: `A focused minimum version that turns ${prompt.toLowerCase()} into a testable concept.`,
-          },
-          {
-            title: `${prompt} Experiment`,
-            description: `An adaptable prototype for iterating on ${prompt.toLowerCase()} quickly.`,
-          },
-        ];
+        if (prompt.length > MAX_PROMPT_LENGTH) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              error: `Prompt must not exceed ${MAX_PROMPT_LENGTH} characters`,
+            }),
+          );
+          return;
+        }
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ideas }));
+        try {
+          const ideas = await generateIdeas(prompt);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ ideas }));
+        } catch (err) {
+          const status = ERROR_CODE_STATUS[err.code] || 500;
+          res.writeHead(status, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({ error: "Ideas couldn't generate. Try again." }),
+          );
+        }
       });
       return;
     }

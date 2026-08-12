@@ -1,0 +1,25 @@
+[workflow]
+
+prd_template = "{project-root}/_bmad/custom/templates/prd-template.md"
+
+validation_checklist_template = "{project-root}/_bmad/custom/templates/prd-validation-checklist.md"
+
+persistent_facts = [
+  "Whenever the user requests, confirms, or makes a substantive change to the PRD's content during this conversation (any point before or after Finalize — not only at on_complete): first, if PRD.md's current frontmatter approval_status is 'approved', edit it back to 'draft' and save that change before or together with the content edit — an approved brief whose content changes is no longer approved, regardless of whether the change is committed to git. Then log the update immediately via skill:agent-project-logger with action 'PRD updated via chat: <one-line summary of the change>' (include 'status reverted to draft' in the action text if the revert applied), in addition to the standard .memlog.md entry. Do this for each such change as it happens, not batched at the end.",
+]
+
+activation_steps_prepend = [
+  "skill:agent-approval-gate-check with doc_type='brief', doc_path=<resolved path to the brief this PRD is based on>, doc_label='brief', downstream_label='PRD generation'",
+
+  "skill:agent-project-logger with action 'PRD generation started'",
+]
+
+on_complete = [
+  "skill:agent-project-logger with action 'PRD generated'",
+
+  "skill:agent-project-logger with action 'Confidence scored: <confidence_label> (<confidence>/100) for PRD', stage='prd', doc_status='draft', confidence=<prd.md frontmatter confidence>, confidence_label=<prd.md frontmatter confidence_label>, confidence_rationale=<prd.md frontmatter confidence_rationale>, doc_path=<resolved path to prd.md>",
+
+  "Set prd.md's approval_status frontmatter field to 'review' and save, now that the review artifact exists.",
+
+  "skill:agent-approval-grant with doc_type='prd', doc_path=<resolved path to prd.md>, doc_label='PRD'",
+]

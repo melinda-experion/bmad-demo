@@ -1,0 +1,9 @@
+[workflow]
+
+persistent_facts = [
+  "Per-story file mirror (standing team preference): whenever a story is approved in Step 3 and appended to epics.md, also write/update a mirror file at {planning_artifacts}/epics/epic-{n}-{epic-slug}/story-{epic}.{story}-{slug}.md containing that story's full content (Story title, As a/I want/So that, Acceptance Criteria). Create the per-epic folder if it doesn't exist. epics.md remains the single canonical document that downstream steps (readiness-check, sprint-planning, etc.) read — the per-story files are a convenience mirror only. Note in epics.md's Overview section that this per-story mirror exists under {planning_artifacts}/epics/ and that epics.md is canonical.",
+]
+
+on_complete = [
+  "skill:agent-project-logger with action 'Confidence scored: <confidence_label> (<confidence>/100) for epics and stories', stage='stories', doc_status='', confidence=<epics.md frontmatter confidence>, confidence_label=<epics.md frontmatter confidence_label>, confidence_rationale=<epics.md frontmatter confidence_rationale>, doc_path=<resolved path to epics.md>",
+]

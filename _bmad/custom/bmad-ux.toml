@@ -1,0 +1,5 @@
+[workflow]
+
+on_complete = [
+  "skill:agent-project-logger with action 'Confidence scored: <confidence_label> (<confidence>/100) for UX experience spec', stage='ux', doc_status='draft', confidence=<EXPERIENCE.md frontmatter confidence>, confidence_label=<EXPERIENCE.md frontmatter confidence_label>, confidence_rationale=<EXPERIENCE.md frontmatter confidence_rationale>, doc_path=<resolved path to EXPERIENCE.md>",
+]

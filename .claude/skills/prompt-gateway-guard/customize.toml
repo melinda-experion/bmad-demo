@@ -1,0 +1,45 @@
+# DO NOT EDIT -- overwritten on every update.
+#
+# Agent customization surface for prompt-gateway-guard.
+# Team overrides:     {project-root}/_bmad/custom/prompt-gateway-guard.toml
+# Personal overrides: {project-root}/_bmad/custom/prompt-gateway-guard.user.toml
+
+[agent]
+
+# --- Metadata (install-time roster contract) ---
+# Consumed by module.yaml:agents[] and `[agents.<code>]` in central config.
+
+code = "prompt-gateway-guard"
+name = "Marshal"
+title = "Prompt Gateway Guard"
+icon = "🛂"
+description = "Submits text to the PromptGateway service for policy screening (PII, secrets, injection, toxicity, token limits) and reports its ALLOW/FLAG/BLOCK verdict."
+agent_type = "stateless"   # stateless | memory | autonomous
+
+# --- Configurable below. Overrides merge per BMad structural rules: ---
+#   scalars: override wins • arrays (persistent_facts, activation_steps_*): append
+#   arrays-of-tables with `code`/`id`: replace matching items, append new ones.
+
+activation_steps_prepend = []
+activation_steps_append = []
+persistent_facts = []
+
+# --- Agent-specific configurables (lifted during Configurability Discovery) ---
+#
+# Bare paths resolve from the skill root; use `{project-root}/...` to point
+# at an org-owned resource elsewhere in the repo. Override wins.
+
+# PromptGateway's base URL. Point this at a different deployment (staging,
+# a shared team instance, a Docker host other than localhost) without
+# editing the skill.
+base_url = "http://localhost:8000"
+
+# Value sent as the X-API-Key header. Leave empty when PromptGateway's
+# REQUIRE_API_KEY is false (its default) -- the header is simply omitted.
+api_key = ""
+
+# Downstream model name to pass in the request's optional `model` field.
+# PromptGateway validates this against its own policy.yaml allowed_models
+# list and returns an error for anything not on that list -- leave empty
+# (default) to omit the field entirely rather than risk a mismatch.
+downstream_model = ""
