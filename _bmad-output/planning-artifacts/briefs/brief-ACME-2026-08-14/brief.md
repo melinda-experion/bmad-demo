@@ -1,11 +1,12 @@
 ---
 title: Support Ticket Triage
-approval_status: review
+approval_status: approved
 created: 2026-08-14
 updated: 2026-08-14
 confidence: 68
 confidence_label: Medium
 confidence_rationale: Fast-path run with 3 unresolved [ASSUMPTION] tags (Problem section is illustrative/unresearched by design; the reusable-harness framing is inferred); however scope, persona-realism, success-criteria priority, and the project-naming decision were explicitly confirmed via direct Q&A rather than guessed, and both structure and prose review passes came back clean.
+version: 1
 ---
 
 # Product Brief: Support Ticket Triage
