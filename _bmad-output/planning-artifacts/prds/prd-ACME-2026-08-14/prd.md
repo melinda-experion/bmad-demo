@@ -1,11 +1,12 @@
 ---
 title: Support Ticket Triage
-approval_status: review
+approval_status: approved
 created: 2026-08-14
 updated: 2026-08-14
 confidence: 71
 confidence_label: Medium
 confidence_rationale: Fast-path/Internal-stakes PRD with 8 unresolved [ASSUMPTION] tags and 7 deliberately-left-open Open Questions (none phase-blocking); however the one consequential fork (wiring PromptGateway into the runtime) was explicitly user-confirmed rather than inferred, and both input reconciliation (7/7 gaps found and fixed, not deferred) and the Reviewer Gate (4/4 findings fixed; rubric verdict strong on 5/7 dimensions, adequate on the remaining 2, no critical/high findings) ran clean.
+version: 1
 ---
 
 # PRD: Support Ticket Triage
