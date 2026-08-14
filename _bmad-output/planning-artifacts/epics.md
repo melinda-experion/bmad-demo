@@ -61,10 +61,11 @@ store, accounts, or auth (Architecture AD-6).
 
 ### Additional Requirements
 
-- **No starter template** — greenfield, no framework. Epic 1 Story 1 must
-  scaffold the layered+adapter structure directly: `server.js` (HTTP layer
-  only), `lib/promptGatewayClient.js`, `lib/triageService.js` (adapters),
-  `public/` (client), `test/` (Architecture AD-1).
+- **No starter template** — greenfield, no framework (Architecture AD-1).
+  No big upfront scaffold story: each story creates only the files it
+  needs, when it needs them — `lib/triageService.js` in Story 1.1,
+  `lib/promptGatewayClient.js` in Story 1.2, `server.js` + `public/` +
+  `test/` in Story 1.3, which wires the two adapters together.
 - `server.js` may not call PromptGateway or the triage LLM directly — only
   through their respective adapters, and adapters never call each other
   (AD-1, AD-2).
