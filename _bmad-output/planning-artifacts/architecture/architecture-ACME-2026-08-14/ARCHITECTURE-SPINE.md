@@ -6,7 +6,7 @@ altitude: feature
 paradigm: 'layered + adapter'
 scope: 'Support Ticket Triage app: request handling, PromptGateway integration boundary, state/data rules'
 status: final
-approval_status: review
+approval_status: draft
 created: '2026-08-14'
 updated: '2026-08-14'
 confidence: 86
@@ -15,6 +15,7 @@ confidence_rationale: Coaching-path spine with every load-bearing call (paradigm
 binds: ['FR-1', 'FR-2', 'FR-3', 'FR-4', 'FR-5', 'FR-6']
 sources: ['_bmad-output/planning-artifacts/prds/prd-ACME-2026-08-14/prd.md']
 companions: []
+version: 1
 ---
 
 # Architecture Spine — Support Ticket Triage
@@ -73,23 +74,28 @@ graph LR
   owns the fail-open decision when PromptGateway is unreachable, or
   silently hiding a screening outage from the agent.
 - **Rule:** `lib/promptGatewayClient.js` catches unreachable/timeout
-  internally and returns `decision: "UNREACHABLE"` (AD-2's 4th value) —
-  never `ALLOW`. `server.js` treats `UNREACHABLE` the same as `FLAG`: the
-  triage call proceeds, and the agent sees a visible warning that
-  screening didn't run. This matches the real precedent (`.claude/hooks/
+  internally and returns `{decision: "UNREACHABLE", reason: "PromptGateway
+  unreachable", categories_triggered: []}` (AD-2's 4th value, with
+  `reason`/`categories_triggered` always populated this way — never
+  `null` — so no two adapters can disagree on their shape). `server.js`
+  treats `UNREACHABLE` the same as `FLAG`: the triage call proceeds, and
+  the agent sees a visible warning that screening didn't run. This matches the real precedent (`.claude/hooks/
   prompt_gateway_check.py` surfaces a warning on unreachable, it doesn't
   fail silently) — true `ALLOW` only ever means PromptGateway actually
   screened the text and found nothing.
-- **Timeout bound: 20s, not 8s.** The reference hook's 8s timeout is
-  tuned for an interactive chat-prompt check; PromptGateway's own
-  Ollama-backed LLM validator can synchronously take up to 15s before
-  `/api/v1/validate` responds at all (`PromptGateway/validators/
-  llm_validator.py`, `config.py`), so an 8s client timeout would
-  misclassify a healthy-but-slow PromptGateway as `UNREACHABLE` and show
-  the agent an incorrect warning. 20s clears that worst case with margin.
-  This is a deliberate divergence from the hook's number, not a copy of
-  it — the hook accepts that risk for a background dev-tool check; a
-  user-facing submit action can't.
+- **Timeout bound: 20s, not 8s — a UX bound, not a worst-case guarantee.**
+  The reference hook's 8s timeout is tuned for a background chat-prompt
+  check; PromptGateway's Ollama validator defaults to a 15s timeout with
+  1 retry (`policy.yaml: timeout_seconds: 15, max_retries: 1`,
+  `llm_validator.py`'s retry loop), so its true worst case before
+  `/api/v1/validate` responds is up to ~30s, not 15s. 20s does **not**
+  reliably clear that full worst case — it's chosen as a reasonable
+  interactive-wait bound, not a claim of correctly distinguishing
+  genuinely-unreachable from slow-but-healthy in every case. This is
+  deliberately low-stakes: AD-3 already treats a timeout as
+  `UNREACHABLE` → `FLAG`-equivalent (proceed with a warning), never a
+  hard failure, so an occasional false `UNREACHABLE` on a slow-but-healthy
+  gateway costs an unnecessary warning, not broken functionality.
 
 ### AD-4 — Triage output validation
 
@@ -98,14 +104,20 @@ graph LR
   one provider's structured-output feature before a provider is chosen.
 - **Rule:** `lib/triageService.js` parses the LLM response as structured
   data, then validates `Category` against the 5-value enum and `Priority`
-  against the 3-value enum. Two distinct failure paths, not one:
-  - The response **fails to parse as structured data at all** (fully
-    garbled) → this is an adapter failure, surfaced via AD-5's
-    `MALFORMED:500`.
-  - The response **parses but has an out-of-enum value** → this is not a
-    failure, it's handled inline: `Category` resolves to `other` (FR-3),
-    `Priority` resolves to `medium` — the named safe default, chosen as
-    the non-escalating, non-suppressing middle value.
+  against the 3-value enum. Two distinct paths, precisely bounded — not
+  "garbled vs. not," but a strict schema check first:
+  - "Parses as structured data" means: valid JSON containing `category`,
+    `priority`, `summary`, and `draftReply` keys, each a string. Anything
+    short of that — invalid JSON, a missing key, or a wrong type (e.g.
+    `priority` as a number) — is not structured data.
+  - Response is **not** structured data (per that check) → adapter
+    failure, surfaced via AD-5's `MALFORMED:500`. No inline default
+    applies here.
+  - Response **is** structured data, but `category`/`priority`'s string
+    value is outside its enum (right type, wrong value) → not a failure,
+    handled inline: `Category` resolves to `other` (FR-3), `Priority`
+    resolves to `medium` — the named safe default, chosen as the
+    non-escalating, non-suppressing middle value.
   Raw model text never reaches the response as a field value. Scoped
   narrowly: this AD governs Category/Priority validation only.
   Summary-is-one-sentence and Draft-Reply-non-empty (FR-2) are
