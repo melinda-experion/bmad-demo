@@ -6,7 +6,7 @@
           {
             "type": "command",
             "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/prompt_gateway_check.py\"",
-            "timeout": 20,
+            "timeout": 55,
             "statusMessage": "Screening prompt via PromptGateway..."
           }
         ]
