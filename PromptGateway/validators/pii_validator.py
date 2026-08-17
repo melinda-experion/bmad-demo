@@ -20,8 +20,15 @@ _PATTERNS = {
     "credit_card": re.compile(r"\b(?:\d[ -]?){13,16}\b"),
     "ip_address": re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b"),
     "aws_access_key": re.compile(r"\b(AKIA|ASIA)[0-9A-Z]{16}\b"),
+    # Vendor-style prefixes (sk-/pk-) are near-unambiguous outside of secrets
+    # (Stripe, OpenAI, Anthropic keys all use them), so hyphen/underscore
+    # segments in the body -- e.g. "sk-ant-api03-AAAA...", "pk_live_51H8..."
+    # -- are allowed with no extra guard. Word-ish prefixes (api/token/key)
+    # collide with ordinary hyphenated prose ("key-value-store"), so those
+    # require a digit somewhere in the body to reduce false positives.
     "generic_api_key": re.compile(
-        r"\b(sk|pk|api|token|key)[-_][A-Za-z0-9]{16,}\b|"
+        r"\b(sk|pk)[-_][A-Za-z0-9][A-Za-z0-9_-]{14,}[A-Za-z0-9]\b|"
+        r"\b(api|token|key)[-_](?=[A-Za-z0-9_-]*\d)[A-Za-z0-9][A-Za-z0-9_-]{14,}[A-Za-z0-9]\b|"
         r"\b[A-Za-z0-9_\-]{32,}\b(?=.{0,5}$)"
     ),
     "password_field": re.compile(r"(?i)\b(password|passwd|pwd|secret)\s*[:=]\s*\S+"),

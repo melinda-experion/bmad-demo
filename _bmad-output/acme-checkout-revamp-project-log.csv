@@ -1,0 +1,42 @@
+date,time,user,action,stage,agent,doc_status,confidence,confidence_label,confidence_rationale,doc_path
+2026-08-14,11:33:41,Mel,Brief generation started,,,
+2026-08-14,11:48:09,Mel,Brief generated,,,
+2026-08-14,11:48:09,Mel,Confidence scored: Medium (68/100) for brief,brief,,draft
+2026-08-14,11:50:53,Mel,Confidence scored (re-logged with full fields after agent-project-logger CLI gap fixed): Medium (68/100) for brief,brief,,draft,68,Medium,"Fast-path run with 3 unresolved [ASSUMPTION] tags (Problem section illustrative by design; reusable-harness framing inferred); scope, persona-realism, success-criteria priority, and project-naming were explicitly confirmed via direct Q&A; structure and prose review passes came back clean.",/Users/shameersn/Projects/Poc/bmad-demo/_bmad-output/planning-artifacts/briefs/brief-ACME-2026-08-14/brief.md
+2026-08-14,11:51:32,Mel,brief review started,brief,experion-brief-review/RB,draft,,,,
+2026-08-14,11:52:44,Mel,"brief review completed - report at /Users/shameersn/Projects/Poc/bmad-demo/_bmad-output/planning-artifacts/briefs/brief-ACME-2026-08-14/review-report.md, brief_version 1",brief,experion-brief-review/RB,draft,,,,/Users/shameersn/Projects/Poc/bmad-demo/_bmad-output/planning-artifacts/briefs/brief-ACME-2026-08-14/review-report.md
+2026-08-14,11:52:55,Mel,Brief review report generated,brief,,draft,,,,
+2026-08-14,11:53:17,Mel,brief approval flow started,brief,agent-approval-grant/GRANT,review,,,,
+2026-08-14,11:53:43,Mel,brief pending edit committed before approval flow,brief,agent-approval-grant/GRANT,review,,,,
+2026-08-14,11:53:52,Mel,brief review currency check passed for v1,brief,agent-approval-grant/GRANT,review,,,,
+2026-08-14,11:55:24,Mel,brief first confirmation received,brief,agent-approval-grant/GRANT,review,,,,
+2026-08-14,11:57:13,Mel,brief second confirmation received,brief,agent-approval-grant/GRANT,review,,,,
+2026-08-14,11:57:34,Mel,brief approved by Mel,brief,agent-approval-grant/GRANT,approved,,,,
+2026-08-14,11:59:54,Mel,PRD generation started,,,,,,,
+2026-08-14,12:24:40,Mel,PRD generated,,,,,,,
+2026-08-14,12:24:40,Mel,Confidence scored: Medium (71/100) for PRD,prd,,draft,71,Medium,"Fast-path/Internal-stakes PRD with 8 unresolved [ASSUMPTION] tags and 7 deliberately-left-open Open Questions (none phase-blocking); however the one consequential fork (wiring PromptGateway into the runtime) was explicitly user-confirmed rather than inferred, and both input reconciliation (7/7 gaps found and fixed) and the Reviewer Gate (4/4 findings fixed; strong on 5/7 rubric dimensions) ran clean.",/Users/shameersn/Projects/Poc/bmad-demo/_bmad-output/planning-artifacts/prds/prd-ACME-2026-08-14/prd.md
+2026-08-14,12:25:00,Mel,Brief review report generated,prd,,review,,,,
+2026-08-14,12:25:00,Mel,PRD approval flow started,prd,agent-approval-grant/GRANT,review,,,,
+2026-08-14,12:25:11,Mel,"Correction: prior row 'Brief review report generated' at 12:25:00 was logged with the wrong action text (copy-paste error) -- no brief review ran here, this stage is PRD approval. Ignore that row.",prd,,review,,,,
+2026-08-14,12:25:32,Mel,PRD pending edit committed before approval flow,prd,agent-approval-grant/GRANT,review,,,,
+2026-08-14,12:25:43,Mel,PRD review currency check passed for v1 (review-rubric.md prd_version matches target),prd,agent-approval-grant/GRANT,review,,,,
+2026-08-14,13:12:34,Mel,PRD approval declined or deferred (user dismissed confirmation),prd,agent-approval-grant/GRANT,review,,,,
+2026-08-14,13:12:44,Mel,Correction: prior 'declined or deferred' row was a UI dismissal artifact -- user's actual answer ('yes') arrived immediately after. PRD first confirmation received.,prd,agent-approval-grant/GRANT,review,,,,
+2026-08-14,13:13:00,Mel,PRD second confirmation received,prd,agent-approval-grant/GRANT,review,,,,
+2026-08-14,13:13:08,Mel,PRD approved by Mel,prd,agent-approval-grant/GRANT,approved,,,,
+2026-08-14,13:14:45,Mel,Architecture generation started,,,,,,,
+2026-08-14,13:48:52,Mel,Architecture generated,,,,,,,
+2026-08-14,13:48:52,Mel,Confidence scored: High (86/100) for architecture spine,architecture,,draft,86,High,"Coaching-path spine, every load-bearing call explicitly confirmed by user; reconciliation and 3-reviewer gate both ran clean (real findings resolved, one false finding rejected after verification). Docked for one unsynced PRD/spine divergence and the LLM provider/timeout remaining open.",/Users/shameersn/Projects/Poc/bmad-demo/_bmad-output/planning-artifacts/architecture/architecture-ACME-2026-08-14/ARCHITECTURE-SPINE.md
+2026-08-14,13:49:19,Mel,architecture spine approval flow started,architecture,agent-approval-grant/GRANT,review,,,,
+2026-08-14,13:49:31,Mel,architecture spine pending edit committed before approval flow,architecture,agent-approval-grant/GRANT,review,,,,
+2026-08-14,13:49:54,Mel,architecture spine review stale or missing for v1 - regenerating via bmad-architecture,architecture,agent-approval-grant/GRANT,review,,,,
+2026-08-14,13:53:50,Mel,architecture spine review currency check passed for v1 (regenerated),architecture,agent-approval-grant/GRANT,review,,,,
+2026-08-14,14:03:33,Mel,architecture spine first confirmation received,architecture,agent-approval-grant/GRANT,review,,,,
+2026-08-14,14:04:58,Mel,architecture spine second confirmation received,architecture,agent-approval-grant/GRANT,review,,,,
+2026-08-14,14:04:59,Mel,Architecture updated outside approval flow - status reverted to draft (_bmad-output/planning-artifacts/architecture/architecture-ACME-2026-08-14/ARCHITECTURE-SPINE.md),,,,,,,
+2026-08-14,14:05:08,Mel,architecture spine approved by Mel,architecture,agent-approval-grant/GRANT,approved,,,,
+2026-08-14,14:31:15,Mel,Confidence scored: High (90/100) for epics and stories,stories,,,90,High,"Every FR/NFR traces directly to the approved PRD and architecture spine; requirements extraction, epic structure, and all 3 stories each got explicit user approval. Docked slightly for the inherited, correctly-unresolved LLM provider gap.",/Users/shameersn/Projects/Poc/bmad-demo/_bmad-output/planning-artifacts/epics.md
+2026-08-14,16:41:23,Mel,Confidence scored: Medium (76/100) for implementation plan 1-1-triage-adapter-structured-output-with-validated-fallbacks,implementation-plan,bmad-dev-story,pending-approval,76,Medium,"All 5 ACs and the AD-4 validation contract are directly confirmed by the approved architecture spine and story ACs; docked because the LLM provider (Claude Haiku 4.5) and 18s timeout are new decisions made in this plan, not confirmed prior input.",_bmad-output/implementation-artifacts/1-1-triage-adapter-structured-output-with-validated-fallbacks-plan.md
+2026-08-14,16:57:14,Mel,code_scored,stories,confidence-scorer,review,88,High,"test: 11/11 tests passed (score=100, weight=40%, contrib=40.0); lint: no lint issues (score=100, weight=25%, contrib=25.0); diff: 110 lines changed of 110 (100%) (score=40, weight=20%, contrib=8.0); revision: no revision cycles (score=100, weight=15%, contrib=15.0); total=88",lib/triageService.js
+2026-08-14,16:57:20,Mel,code_scored,stories,confidence-scorer,review,88,High,"test: 11/11 tests passed (score=100, weight=40%, contrib=40.0); lint: no lint issues (score=100, weight=25%, contrib=25.0); diff: 260 lines changed of 260 (100%) (score=40, weight=20%, contrib=8.0); revision: no revision cycles (score=100, weight=15%, contrib=15.0); total=88",test/triageService.test.js
+2026-08-14,17:13:41,Mel,Confidence scored: High (92/100) for code review of 1-1-triage-adapter-structured-output-with-validated-fallbacks,code-review,bmad-code-review,done,92,High,"All 3 review layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor) ran successfully with no failed_layers; review_mode=full so acceptance-criteria checking was in scope; diff (370 lines, 2 files) was well under the 3000-line chunking threshold so the full change was reviewed in one pass. Docked slightly since this ran in the same session that authored the code (subagents had no memory of implementation reasoning, but it is not a fully independent fresh session).",_bmad-output/implementation-artifacts/1-1-triage-adapter-structured-output-with-validated-fallbacks.md

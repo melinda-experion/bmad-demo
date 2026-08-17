@@ -45,3 +45,25 @@ def test_redact_masks_email():
     redacted = validator.redact("Email jane.doe@example.com now")
     assert "jane.doe@example.com" not in redacted
     assert "REDACTED_EMAIL" in redacted
+
+
+def test_anthropic_style_key_detected():
+    validator = PIIValidator(_rules())
+    result = validator.validate(
+        "Use my API key sk-ant-api03-AAAA1111BBBB2222CCCC3333DDDD4444 to call the model."
+    )
+    assert result.passed is False
+    assert any(f.category == "secret_leak" for f in result.findings)
+
+
+def test_stripe_style_underscored_key_detected():
+    validator = PIIValidator(_rules())
+    result = validator.validate("publishable key pk_live_51H8xxxxxxxxxxxxxxxxxxxxxxxxxxxx set")
+    assert result.passed is False
+    assert any(f.category == "secret_leak" for f in result.findings)
+
+
+def test_generic_key_prefix_requires_digit_to_avoid_prose_false_positive():
+    validator = PIIValidator(_rules())
+    result = validator.validate("Our key-value-store-implementation-details doc is outdated")
+    assert not any(f.category == "secret_leak" for f in result.findings)

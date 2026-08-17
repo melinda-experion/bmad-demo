@@ -42,7 +42,19 @@ class AppendRowTests(unittest.TestCase):
             self.assertEqual(rows[0], log_action.HEADER)
             self.assertEqual(
                 rows[1],
-                ["2026-07-17", "14:32:05", "Mel", "Deployed v2 to staging", "prd", "agent-project-logger/LOG", "draft"],
+                [
+                    "2026-07-17",
+                    "14:32:05",
+                    "Mel",
+                    "Deployed v2 to staging",
+                    "prd",
+                    "agent-project-logger/LOG",
+                    "draft",
+                    "",
+                    "",
+                    "",
+                    "",
+                ],
             )
 
     def test_appends_without_rewriting_existing_rows(self):
@@ -60,9 +72,64 @@ class AppendRowTests(unittest.TestCase):
             self.assertEqual(len(rows), 3)
             self.assertEqual(
                 rows[1],
-                ["2026-07-17", "09:00:00", "Mel", "First action", "brief", "experion-brief-review/RB", "draft"],
+                [
+                    "2026-07-17",
+                    "09:00:00",
+                    "Mel",
+                    "First action",
+                    "brief",
+                    "experion-brief-review/RB",
+                    "draft",
+                    "",
+                    "",
+                    "",
+                    "",
+                ],
             )
-            self.assertEqual(rows[2], ["2026-07-17", "10:00:00", "Sam", "Second action", "prd", "", ""])
+            self.assertEqual(
+                rows[2],
+                ["2026-07-17", "10:00:00", "Sam", "Second action", "prd", "", "", "", "", "", ""],
+            )
+
+    def test_confidence_and_doc_path_columns_round_trip(self):
+        with TemporaryDirectory() as tmp:
+            log_path = Path(tmp) / "acme-project-log.csv"
+            now = datetime(2026, 7, 17, 9, 0, 0)
+
+            log_action.append_row(
+                log_path,
+                "Mel",
+                "Confidence scored: Medium (68/100) for brief",
+                "brief",
+                "",
+                "draft",
+                now,
+                confidence="68",
+                confidence_label="Medium",
+                confidence_rationale="Fast-path run with 3 unresolved assumptions.",
+                doc_path="/repo/brief.md",
+            )
+
+            with log_path.open(newline="", encoding="utf-8") as f:
+                rows = list(csv.reader(f))
+
+            self.assertEqual(rows[0], log_action.HEADER)
+            self.assertEqual(
+                rows[1],
+                [
+                    "2026-07-17",
+                    "09:00:00",
+                    "Mel",
+                    "Confidence scored: Medium (68/100) for brief",
+                    "brief",
+                    "",
+                    "draft",
+                    "68",
+                    "Medium",
+                    "Fast-path run with 3 unresolved assumptions.",
+                    "/repo/brief.md",
+                ],
+            )
 
     def test_no_header_written_when_file_already_exists(self):
         with TemporaryDirectory() as tmp:
