@@ -1,14 +1,14 @@
 {
   "brief": {
-    "doc_path": "D:\\Projects\\bmad-demo\\_bmad-output\\planning-artifacts\\briefs\\brief-BMAD-2026-07-30\\brief.md",
-    "approved_hash": "d8cfcdd5db8834641aaa8938dcdc7d292237df7aa409a02ac45b1501fe21750a"
+    "doc_path": "/home/riona.varghese@experionglobal.local/Desktop/Experion_POCs/BMAD/bmad-demo/_bmad-output/planning-artifacts/briefs/brief-BMAD-2026-08-14/brief.md",
+    "approved_hash": "316f131b9d41ac6a30470f91a51ed55dddce87dce9512cfb9f2d7e75728bf56e"
   },
   "prd": {
-    "doc_path": "D:\\Projects\\bmad-demo\\_bmad-output\\planning-artifacts\\prds\\prd-BMAD-2026-07-30\\prd.md",
-    "approved_hash": "bf0d8450021600808e8bf875b2b3855491a00d2914fa93b0b54b779b2eb4d2ff"
+    "doc_path": "/home/riona.varghese@experionglobal.local/Desktop/Experion_POCs/BMAD/bmad-demo/_bmad-output/planning-artifacts/prds/prd-BMAD-2026-08-14/prd.md",
+    "approved_hash": "187ff539c2d7e835694cbaa3c14ffecf66563bc344fcb136fb20d6b752f95ed6"
   },
   "architecture": {
-    "doc_path": "D:\\Projects\\bmad-demo\\_bmad-output\\planning-artifacts\\architecture\\architecture-BMAD-2026-07-30\\ARCHITECTURE-SPINE.md",
-    "approved_hash": "57c0b5602051882ed47c1f7589d9c2eb579d795657d719dd81078b5632fbc161"
+    "doc_path": "/home/riona.varghese@experionglobal.local/Desktop/Experion_POCs/BMAD/bmad-demo/_bmad-output/planning-artifacts/architecture/architecture-BMAD-2026-08-14/ARCHITECTURE-SPINE.md",
+    "approved_hash": "c5a01848c86ef4aedc85ea7bfad701975d5aa073b7b7f4a93aad3a5a0993a7c2"
   }
 }
