@@ -76,11 +76,10 @@ test("generateIdeas throws with .code = TIMEOUT when the provider call is aborte
       });
     };
 
-    const { generateIdeas, __setTimeoutMsForTest } = freshIdeaService();
-    __setTimeoutMsForTest(10);
+    const { generateIdeas } = freshIdeaService();
 
     await assert.rejects(
-      () => generateIdeas("A study planner"),
+      () => generateIdeas("A study planner", { timeoutMs: 10 }),
       (error) => {
         assert.equal(error.code, "TIMEOUT");
         return true;

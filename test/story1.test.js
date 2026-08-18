@@ -344,11 +344,33 @@ test("POST /api/ideas rejects prompts over 2000 characters with 400", async () =
   }
 });
 
+test("POST /api/ideas accepts a prompt at exactly 2000 characters", async () => {
+  const nodeFetch = global.fetch;
+  mockProviderEnv();
+  mockProviderSuccess([
+    { title: "One", description: "First" },
+    { title: "Two", description: "Second" },
+    { title: "Three", description: "Third" },
+  ]);
+  const { server, baseUrl } = await startServer();
+  try {
+    const response = await nodeFetch(`${baseUrl}/api/ideas`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ prompt: "a".repeat(2000) }),
+    });
+
+    assert.equal(response.status, 200);
+  } finally {
+    await stopServer(server);
+    restoreProviderEnv();
+  }
+});
+
 test("POST /api/ideas returns 504 when the provider call times out", async () => {
   const nodeFetch = global.fetch;
   mockProviderEnv();
-  const ideaService = require("../lib/ideaService");
-  ideaService.__setTimeoutMsForTest(10);
+  process.env.IDEA_LLM_TIMEOUT_MS = "10";
   global.fetch = async (url, options) =>
     new Promise((resolve, reject) => {
       options.signal.addEventListener("abort", () => {
@@ -371,7 +393,7 @@ test("POST /api/ideas returns 504 when the provider call times out", async () =>
     assert.ok(payload.error);
   } finally {
     await stopServer(server);
-    ideaService.__setTimeoutMsForTest(25000);
+    delete process.env.IDEA_LLM_TIMEOUT_MS;
     restoreProviderEnv();
   }
 });

@@ -53,6 +53,20 @@ so that I get genuinely varied, AI-generated starter ideas for my prompt.
   - [x] Test that two separate `POST /api/ideas` calls with the identical prompt each independently reach the (mocked) provider — proves no caching (AC 5)
   - [x] Test that a successful response renders exactly 3 cards with visible title + description (AC 7)
 
+### Review Findings
+
+- [x] [Review][Decision] All non-2xx provider responses collapse into `NETWORK`/502 with no distinction for 429/401/403 vs. a true pre-response network failure — resolved: leave as-is, current collapsed behavior is spec-compliant with AD-5's fixed status set. [lib/ideaService.js]
+- [x] [Review][Decision] The prompt asks the model for "3 distinct starter ideas," but nothing validates distinctness — resolved: leave as-is for MVP, not a stated Acceptance Criterion and duplicates are rare in practice. [lib/ideaService.js]
+- [ ] [Review][Patch] Timeout does not cover response-body reading — `clearTimeout(timer)` fires in the `finally` right after `fetch()`'s promise settles (headers received), before `await response.json()`. A provider that sends headers promptly but stalls the body can hang past the intended 25s bound, defeating AC2's timeout guarantee. [lib/ideaService.js:~90-114]
+- [ ] [Review][Patch] `parseIdeas` reads `responseBody?.content?.[0]?.text` without checking `type` — assumes the first content block is always the text block. Fragile if the Anthropic response ever includes a non-text block first; a valid response could be wrongly classified as `MALFORMED`. [lib/ideaService.js:34]
+- [ ] [Review][Patch] `response.json()` is unguarded — a 2xx response with a non-JSON body throws a raw, uncoded `SyntaxError` instead of going through the explicit `.code = 'MALFORMED'` path. Currently falls through to 500 by the `|| 500` default anyway, but is inconsistent with AD-6's explicit-coding requirement. [lib/ideaService.js:113]
+- [ ] [Review][Patch] No server-side logging when a provider call fails — every failure (timeout/network/malformed/misconfig) is silently swallowed in `server.js`'s catch block with no `console.error`, leaving production debugging blind. [server.js:76-82]
+- [ ] [Review][Patch] `isWellFormedIdea` accepts whitespace-only `title`/`description` (checks `.length > 0` without `.trim()` first) — a model returning blank-looking fields passes validation and renders as an empty idea card. [lib/ideaService.js:22-31]
+- [ ] [Review][Patch] `buildPrompt` splices the raw user prompt into the instruction text with no delimiter or escaping — a prompt-injection surface. Downstream JSON-schema validation limits the blast radius, but a clear separator/tag around user content is still warranted as defense-in-depth. [lib/ideaService.js:12-20]
+- [ ] [Review][Patch] No upper bound on LLM-returned `title`/`description` length, asymmetric with the 2000-char cap enforced on user input — add a reasonable max-length check in `isWellFormedIdea`. [lib/ideaService.js:22-31]
+- [ ] [Review][Patch] Global mutable `timeoutMs` plus the test-only `__setTimeoutMsForTest` exported unguarded from the production module is a test-pollution/footgun hazard — inject the timeout via an options parameter instead of shared module state. [lib/ideaService.js:10,117-119]
+- [ ] [Review][Patch] No test covers the exact-2000-character boundary (only over-2000 is tested) — add one boundary test to lock in the inclusive `≤2000` contract. [test/story1.test.js]
+
 ## Dev Notes
 
 - Architecture patterns/constraints in force for this story: AD-1 (no framework — stay on Node core `http`), AD-2 (server-side-only key via `IDEA_LLM_API_KEY`), AD-5 (fixed `/api/ideas` wire contract and status codes), AD-6 (fixed handler/adapter interface, error-code taxonomy, no caching). AD-3 and AD-4 (client state, favorite) are **not** touched by this story — that's Stories 1.2/1.3.

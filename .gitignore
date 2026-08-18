@@ -11,3 +11,12 @@ node_modules/
 
 # Local Claude Code settings (personal, not team-shared)
 .claude/settings.local.json
+
+# Personal skill-config overrides (may contain secrets, e.g. API keys)
+_bmad/custom/*.user.toml
+
+# Runtime queue for the SessionEnd/SessionStart wiki-review hook relay
+.claude/hooks/.wiki-review-pending.jsonl
+.claude/hooks/pending-review/
+
+PromptGateway/.env

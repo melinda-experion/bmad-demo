@@ -1,0 +1,4 @@
+[agent]
+
+# PromptGateway deployed instance.
+base_url = "https://prompt-gateway-6q1t.onrender.com/"

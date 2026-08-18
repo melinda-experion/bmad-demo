@@ -74,6 +74,7 @@ function createServer() {
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ ideas }));
         } catch (err) {
+          console.error("generateIdeas failed:", err);
           const status = ERROR_CODE_STATUS[err.code] || 500;
           res.writeHead(status, { "Content-Type": "application/json" });
           res.end(
